@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Condominio Pangrazzi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0f24;--pan:#1b1f4b;--ink:#fff7d6;--y:#f5c518;--g:#3ddc84;--r:#e63946;--b:#4fc3f7;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Press Start 2P',monospace;font-size:10px;line-height:1.6}
+.app{max-width:620px;margin:0 auto;padding:10px}
+.hud{display:flex;justify-content:space-between;gap:6px;font-size:9px;margin-bottom:6px}
+.bar{height:10px;background:#000;border:2px solid var(--ink);margin-bottom:8px}
+#mood{height:100%;background:var(--g);width:100%}
+.wrap{position:relative}
+canvas{width:100%;display:block;image-rendering:pixelated;border:3px solid var(--ink);cursor:pointer;background:#000}
+.ov{position:absolute;inset:0;background:rgba(13,15,36,.94);display:none;flex-direction:column;justify-content:center;align-items:center;padding:14px;text-align:center;gap:10px}
+.ov h2{font-size:12px;margin:0;color:var(--y)}
+.ov p{margin:0;font-size:9px}
+button{font:inherit;font-size:10px;color:#000;background:var(--y);border:3px solid var(--ink);padding:9px 12px;cursor:pointer}
+button:active{transform:translateY(2px)}
+button:focus-visible{outline:3px solid var(--b)}
+#mb{width:100%;display:flex;flex-direction:column;gap:8px;align-items:stretch}
+#mb .row{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.hint{font-size:9px}
+.drop{position:absolute;width:16px;height:20px;background:var(--b);border:2px solid #fff;cursor:pointer}
+#mt{color:var(--y);font-size:11px}
+#mbar{width:100%;height:8px;background:#000;border:2px solid var(--ink)}
+#mbar i{display:block;height:100%;background:var(--r);width:100%}
+#mr{min-height:14px;font-size:10px}
+.pad{height:56px;border:3px solid var(--ink);opacity:.55}
+.foot{margin-top:8px;font-size:8px;opacity:.8}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hud"><span id="hT">TURNO 1</span><span id="hS">0 EURO</span><span id="hC">45s</span></div>
+  <div class="bar" title="Umore condomini"><div id="mood"></div></div>
+  <div class="wrap">
+    <canvas id="c" width="160" height="125"></canvas>
+    <div class="ov" id="m">
+      <div id="mt"></div>
+      <div id="mbar"><i></i></div>
+      <div id="mb"></div>
+      <div id="mr"></div>
+    </div>
+    <div class="ov" id="o" style="display:flex">
+      <h2 id="oh">AMMINISTRATORE</h2>
+      <p id="op"></p>
+      <button id="ob">INIZIA</button>
+    </div>
+  </div>
+  <div class="foot">Clicca le finestre che lampeggiano. Le finestrelle di una serie sono un unico appartamento.</div>
+</div>
+<script>
+const $=s=>document.querySelector(s),cv=$('#c'),x=cv.getContext('2d');
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const DUR=45;
+let turn=1,score=0,mood=100,tleft=DUR,wins=[],running=false,modal=false,spawnAt=0,last=0,cl=[],stars=[];
+for(let i=0;i<30;i++)stars.push([rnd(0,119),rnd(0,60)]);
+const pos=i=>[25+(i%3)*27,26+Math.floor(i/3)*19];
+const I=(f,ms)=>{cl.push(setInterval(f,ms))},T=(f,ms)=>{cl.push(setTimeout(f,ms))};
+const clean=()=>{cl.forEach(clearInterval);cl=[]};
+
+/* MINIGIOCHI */
+function perdita(b,done){
+  b.innerHTML='<div class=hint>Chiudi tutte le gocce!</div><div id=a style="position:relative;height:130px;background:#16204a;border:2px solid #fff"></div>';
+  let a=b.querySelector('#a'),n=6;
+  for(let i=0;i<6;i++){let d=document.createElement('div');d.className='drop';d.style.left=rnd(4,84)+'%';d.style.top=rnd(4,76)+'%';d.onclick=()=>{d.remove();if(--n==0)done(true)};a.appendChild(d)}
+}
+function bolletta(b,done){
+  let p=rnd(12,60),q=rnd(12,60),r=rnd(5,40),c=p+q+r;
+  let o=[c,c+rnd(1,9),c-rnd(1,9),c+10].sort(()=>Math.random()-.5);
+  b.innerHTML='<div class=hint>Ripartisci le spese: '+p+' + '+q+' + '+r+' = ?</div><div class=row></div>';
+  o.forEach(v=>{let e=document.createElement('button');e.textContent=v;e.onclick=()=>done(v==c);b.querySelector('.row').appendChild(e)});
+}
+function ascensore(b,done){
+  let zl=rnd(8,68),p=0,v=1.4+turn*.3;
+  b.innerHTML='<div class=hint>Ferma l\'ascensore nella zona verde!</div><div style="position:relative;height:26px;background:#16204a;border:2px solid #fff"><div style="position:absolute;top:0;height:100%;background:#3ddc84;left:'+zl+'%;width:22%"></div><div id=k style="position:absolute;top:0;width:6px;height:100%;background:#fff"></div></div><button id=s>STOP</button>';
+  let k=b.querySelector('#k');
+  I(()=>{p+=v;if(p>=94||p<=0)v=-v;k.style.left=p+'%'},16);
+  b.querySelector('#s').onclick=()=>done(p>=zl-2&&p<=zl+22);
+}
+function chiavi(b,done){
+  let n=rnd(1,15),s=new Set([n]);while(s.size<6)s.add(rnd(1,15));
+  let o=[...s].sort(()=>Math.random()-.5);
+  b.innerHTML='<div class=hint>Trova la chiave n. '+n+'</div><div class=row></div>';
+  o.forEach(v=>{let e=document.createElement('button');e.textContent='CH '+v;e.onclick=()=>done(v==n);b.querySelector('.row').appendChild(e)});
+}
+function citofono(b,done){
+  let cs=['#e63946','#3ddc84','#4fc3f7','#f5c518'],seq=[0,1,2,3].map(()=>rnd(0,3)),i=0,ok=false;
+  b.innerHTML='<div class=hint id=h>Guarda la sequenza...</div><div class=row></div>';
+  let bs=cs.map((c,j)=>{let e=document.createElement('div');e.className='pad';e.style.background=c;e.style.cursor='pointer';b.querySelector('.row').appendChild(e);return e});
+  const fl=j=>{bs[j].style.opacity=1;setTimeout(()=>bs[j].style.opacity=.55,300)};
+  seq.forEach((s,k)=>T(()=>fl(s),600+k*600));
+  T(()=>{ok=true;b.querySelector('#h').textContent='Ripeti!'},600+seq.length*600);
+  bs.forEach((e,j)=>e.onclick=()=>{if(!ok)return;fl(j);if(j!=seq[i])return done(false);if(++i==seq.length)done(true)});
+}
+const G=[{n:'PERDITA D\'ACQUA',f:perdita,l:8},{n:'BOLLETTE',f:bolletta,l:9},{n:'ASCENSORE',f:ascensore,l:8},{n:'CHIAVI',f:chiavi,l:7},{n:'CITOFONO',f:citofono,l:14}];
+
+function openGame(i){
+  let w=wins[i],g=G[w.g],fin=false,el=0;
+  w.busy=true;modal=true;
+  $('#m').style.display='flex';$('#mt').textContent=g.n;$('#mr').textContent='';
+  const bar=$('#mbar i');bar.style.width='100%';
+  const done=ok=>{
+    if(fin)return;fin=true;clean();
+    $('#mr').textContent=ok?'RISOLTO! +'+(10+turn*2)+' EURO':'FALLITO!';
+    $('#mr').style.color=ok?'#3ddc84':'#e63946';
+    setTimeout(()=>{
+      $('#m').style.display='none';modal=false;w.busy=false;
+      w.s=ok?2:3;w.until=performance.now()+1000;
+      if(ok){score+=10+turn*2;mood=Math.min(100,mood+4)}else mood-=8;
+    },700);
+  };
+  g.f($('#mb'),done);
+  I(()=>{el+=.05;bar.style.width=Math.max(0,100-el/g.l*100)+'%';if(el>=g.l)done(false)},50);
+}
+
+/* DISEGNO */
+const U=[];
+for(let f=0;f<3;f++)U.push({sh:'#b5483c',r:[0,1,2,3].map(i=>[8+i*14,25+f*22,9,12])});
+for(let f=0;f<3;f++)for(let c=0;c<4;c++)U.push({sh:'#7a4a6a',r:[[70+c*22,22+f*22,16,18]]});
+const WALL='#e0a94a';
+function win(r,sh,s,lit,t){
+  let[a,b,w,h]=r,k=Math.round(w*.28);
+  if(s==0&&!lit){rect(sh,a,b,w,h);for(let y=b+2;y<b+h;y+=3)rect('#00000040',a,y,w,1);return}
+  rect('#5b3a22',a,b,w,h);
+  let c=s==0?'#ffe9a0':s==1?(Math.floor(t/300)%2?'#ff8a00':'#fff'):s==2?'#3ddc84':'#e63946';
+  rect(c,a+k,b+1,w-2*k,h-2);rect(sh,a,b,k,h);rect(sh,a+w-k,b,k,h);
+  if(s==1){let m=a+(w>>1);rect('#000',m,b+3,1,h-8);rect('#000',m,b+h-4,1,1)}
+}
+function draw2(t){
+  rect('#6f9fd0',0,0,160,125);
+  [[10,10,22,5],[18,7,14,5],[60,14,26,4],[110,6,24,5]].forEach(q=>rect('#e8f1fa',...q));
+  rect('#2f5d2f',140,0,20,30);rect('#2f5d2f',150,30,10,14);
+  rect(WALL,4,17,60,95);rect(WALL,64,14,92,98);rect('#c98f33',150,14,6,98);
+  rect('#3b2a20',2,12,64,5);rect('#3b2a20',62,8,96,6);rect('#222',20,10,6,2);rect('#222',100,6,8,2);rect('#222',130,6,8,2);
+  rect('#5b4f45',64,14,2,98);
+  rect('#9a8460',4,104,152,8);
+  [[12,92],[28,92],[44,92]].forEach(q=>{rect('#3a2a1c',q[0],q[1],7,10);rect('#222',q[0]+1,q[1]+1,5,8)});
+  rect('#d8cfb0',76,86,18,26);rect(WALL,76,86,3,1);rect(WALL,91,86,3,1);rect(WALL,76,87,1,1);rect(WALL,93,87,1,1);
+  rect('#5b3a22',78,89,14,23);rect('#d8cfb0',88,101,2,2);
+  rect('#3a2a1c',100,92,14,14);rect('#222',103,94,8,10);rect('#c0392b',103,102,8,2);
+  rect('#4a2f1c',116,79,38,10);rect('#6b4a2c',116,79,38,1);
+  x.fillStyle='#e8d9a0';x.font='5px monospace';x.textAlign='center';x.fillText('SOUVENIRS',135,87);
+  rect('#2a1c12',120,91,18,21);rect('#1a2530',122,93,14,19);rect('#5b3a22',129,93,1,19);
+  rect('#e8e0c8',142,95,12,9);rect('#4f9d4f',143,96,10,7);
+  rect('#6b4a2c',98,108,16,2);rect('#e63946',112,108,2,2);rect('#e63946',150,109,2,2);
+  rect('#8b8070',0,112,160,13);for(let i=0;i<160;i+=10)rect('#6d6458',i+(i%20?3:0),115+(i%3)*3,5,1);
+  rect('#444',0,121,160,4);
+  U.forEach((u,i)=>{
+    let w=wins[i];
+    u.r.forEach(r=>win(r,u.sh,w.s,w.lit,t));
+    if(w.s==1){
+      let a=Math.min(...u.r.map(q=>q[0])),e=Math.max(...u.r.map(q=>q[0]+q[2])),b=u.r[0][1]+u.r[0][3]+1,f=Math.max(0,(w.dl-t)/w.tot);
+      rect('#000',a,b,e-a,2);rect(f>.4?'#3ddc84':'#e63946',a,b,(e-a)*f,2);
+    }
+  });
+}
+function rect(c,a,b,w,h){x.fillStyle=c;x.fillRect(a,b,w,h)}
+function draw(t){
+  rect('#1b1f4b',0,0,120,150);
+  stars.forEach(s=>rect('#fff7d6',s[0],s[1],1,1));
+  rect('#fff7d6',104,8,8,8);rect('#1b1f4b',107,8,6,6);
+  rect('#f5c518',14,18,92,122);rect('#d9a800',98,18,8,122);
+  rect('#a67c00',12,14,96,5);rect('#a67c00',20,8,8,6);
+  for(let y=22;y<138;y+=4)rect('#e2b410',14,y,92,1);
+  rect('#444',0,140,120,10);rect('#666',0,140,120,2);
+  rect('#6b3d1f',53,122,14,18);rect('#f5c518',64,131,2,2);
+  wins.forEach((w,i)=>{
+    let[a,b]=pos(i),c;
+    rect('#6b3d1f',a-2,b-2,20,18);
+    if(w.s==0)c=w.lit?'#ffe9a0':'#2a3a7a';
+    else if(w.s==1)c=Math.floor(t/300)%2?'#ff8a00':'#fff';
+    else if(w.s==2)c='#3ddc84';else c='#e63946';
+    rect(c,a,b,16,14);rect('#6b3d1f',a+7,b,2,14);rect('#6b3d1f',a,b+6,16,2);
+    if(w.s==1){
+      rect('#000',a+7,b+2,2,6);rect('#000',a+7,b+10,2,2);
+      let f=Math.max(0,(w.dl-t)/w.tot);
+      rect('#000',a,b+15,16,2);rect(f>.4?'#3ddc84':'#e63946',a,b+15,16*f,2);
+    }
+  });
+}
+function hud(){
+  $('#hT').textContent='TURNO '+turn;$('#hS').textContent=score+' EURO';
+  $('#hC').textContent=Math.max(0,Math.ceil(tleft))+'s';
+  $('#mood').style.width=Math.max(0,mood)+'%';
+  $('#mood').style.background=mood>50?'#3ddc84':mood>25?'#f5c518':'#e63946';
+}
+
+/* LOGICA */
+function startTurn(){
+  wins=[];for(let i=0;i<15;i++)wins.push({s:0,lit:Math.random()<.5});
+  tleft=DUR;running=true;spawnAt=performance.now()+800;
+  $('#o').style.display='none';
+}
+function stopAll(){running=false;clean();modal=false;$('#m').style.display='none'}
+function showOv(h,p,b,fn){$('#oh').textContent=h;$('#op').innerHTML=p;$('#ob').textContent=b;$('#ob').onclick=fn;$('#o').style.display='flex'}
+function endTurn(){
+  stopAll();
+  let nw=turn+1<=4?'<br><br>Nuovo minigioco: '+G[turn+1].n:'';
+  showOv('TURNO '+turn+' FINITO','Incassi: '+score+' euro<br>Umore: '+Math.round(mood)+'%'+nw,'TURNO '+(turn+1),()=>{turn++;startTurn()});
+}
+function over(){
+  stopAll();
+  showOv('SFRATTATO!','L\'assemblea ti ha sfiduciato.<br>Turno raggiunto: '+turn+'<br>Euro: '+score,'RIPROVA',()=>{turn=1;score=0;mood=100;startTurn()});
+}
+function loop(t){
+  let dt=(t-last)/1000;last=t;
+  if(running){
+    tleft-=dt;
+    if(t>spawnAt){
+      let act=wins.filter(w=>w.s==1).length;
+      if(act<2+turn){
+        let f=[];wins.forEach((w,i)=>{if(w.s==0)f.push(i)});
+        if(f.length){let w=wins[f[rnd(0,f.length-1)]];w.s=1;w.g=rnd(0,Math.min(5,turn+1)-1);w.tot=Math.max(6000,14000-turn*1200);w.dl=t+w.tot}
+      }
+      spawnAt=t+Math.max(900,3000-turn*300);
+    }
+    wins.forEach(w=>{
+      if(w.s==1&&!w.busy&&t>w.dl){w.s=3;w.until=t+1000;mood-=10}
+      if(w.s>=2&&t>w.until)w.s=0;
+    });
+    if(mood<=0)over();else if(tleft<=0)endTurn();
+  }
+  draw2(t);hud();requestAnimationFrame(loop);
+}
+cv.onclick=e=>{
+  if(!running||modal)return;
+  let r=cv.getBoundingClientRect(),px=(e.clientX-r.left)*160/r.width,py=(e.clientY-r.top)*125/r.height;
+  wins.forEach((w,i)=>{let u=U[i],a=Math.min(...u.r.map(q=>q[0])),e=Math.max(...u.r.map(q=>q[0]+q[2])),b=u.r[0][1],h=u.r[0][3];if(w.s==1&&px>=a-1&&px<=e+1&&py>=b-1&&py<=b+h+1)openGame(i)});
+};
+wins=[];for(let i=0;i<15;i++)wins.push({s:0,lit:Math.random()<.5});
+showOv('CONDOMINIO PANGRAZZI','Sei l\'amministratore dei 15 appartamenti.<br><br>Clicca le finestre che lampeggiano e risolvi i problemi prima che scada il tempo.<br><br>Ogni turno dura '+DUR+' secondi e porta nuovi minigiochi.','INIZIA',startTurn);
+requestAnimationFrame(t=>{last=t;loop(t)});
+</script>
+</body>
+</html>
