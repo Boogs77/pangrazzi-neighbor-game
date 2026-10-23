@@ -9,6 +9,9 @@ const FONT = {
   A:'010101111101101', B:'110101110101110', E:'111100110100111', I:'111010010010111',
   N:'101111111101101', O:'111101101101111', R:'110101110101101', S:'111100111001111',
   U:'101101101101111', V:'101101101101010',
+  C:'111100100100111', D:'110101101101110', F:'111100110100100', G:'111100101101111',
+  H:'101101111101101', K:'101110100110101', P:'111101111100100', Q:'010101101110011',
+  T:'111010010010010',
   0:'111101101101111', 1:'010110010010111', 2:'111001111100111', 3:'111001111001111',
   4:'101101111001001', 5:'111100111001111', 6:'111100111101111', 7:'111001001001001',
   8:'111101111101111', 9:'111101111001111'
@@ -194,14 +197,8 @@ function building(g, look) {
   rack(g, 210, HEAD_ROWS.C + 10, 25);
 
   // piano terra corpo lungo
-  g.rect(P.brown, 9, 106, 10, 8); g.rect(P.brownDark, 13, 106, 1, 8); // finestrella
-  // portone ad arco
-  g.rect(P.stone, 23, 102, 18, STREET - 102);
-  g.rect(P.stone, 25, 100, 14, 2); g.rect(P.stone, 27, 99, 10, 1);
-  g.rect(P.stoneDark, 24, 103, 1, STREET - 103); g.rect(P.stoneDark, 39, 103, 1, STREET - 103);
-  g.rect(P.brown, 26, 104, 12, STREET - 104); g.rect(P.brown, 28, 102, 8, 2);
-  g.rect(P.brownDark, 32, 102, 1, STREET - 102);
-  g.rect('#c8a050', 30, 110, 1, 1); g.rect('#c8a050', 34, 110, 1, 1);
+  lowWindow(g, 9, 106);
+  archDoor(g, 23, 99);
   grateWindow(g, 48, 102); grateWindow(g, 66, 102);
   // panchina
   g.rect(P.wood, 83, 113, 12, 2); g.rect(P.wood, 83, 110, 12, 1);
@@ -211,24 +208,70 @@ function building(g, look) {
     g.rect(P.brownDark, x - 1, y - 1, 10, 9); g.rect(P.white, x, y, 8, 7);
     g.rect('#6aa86a', x + 1, y + 1, 4, 3); g.rect('#d04040', x + 5, y + 4, 2, 1);
   });
-  // negozio Souvenirs
-  g.rect(P.brownDark, 104, 95, 42, 2);
-  g.rect(P.wood, 106, 97, 38, 9);
-  g.rect(P.brownDark, 106, 105, 38, 1);
-  text(g, 'SOUVENIRS', 108, 99, P.curtain);
-  g.rect(P.brownDark, 117, 106, 14, STREET - 106);
-  g.rect('#4a4038', 119, 108, 10, STREET - 108);
-  for (let y = 110; y < STREET; y += 3) g.rect('#7a6a50', 120, y, 8, 1);
-  g.rect(P.geran, 114, 116, 2, 2); g.rect(P.leaf, 114, 118, 2, 2);
-
+  shopDoor(g, 104, 95);
   // ingresso esterno della testata: sporge dalla linea del palazzo
-  g.rect(P.stoneDark, 148, 104, 17, STREET - 104);
-  g.rect(P.brown, 150, 105, 13, STREET - 105);
-  g.rect(P.glass, 152, 107, 4, 6); g.rect(P.glass, 158, 107, 4, 6);
-  g.rect(P.brownDark, 156, 105, 1, STREET - 105);
-  g.rect(P.roof, 145, 100, 23, 2); g.rect(P.brownDark, 146, 102, 21, 2);
-  g.rect('#f0e0a0', 156, 104, 1, 1);
+  porch(g, 145, 100);
 }
+
+/* porte e finestre del piano terra; (x,y) = angolo in alto a sinistra */
+function lowWindow(g, x, y) {
+  g.rect(P.brown, x, y, 10, 8); g.rect(P.brownDark, x + 4, y, 1, 8);
+}
+
+function archDoor(g, x, y) {
+  const h = 21;
+  g.rect(P.stone, x, y + 3, 18, h - 3);
+  g.rect(P.stone, x + 2, y + 1, 14, 2); g.rect(P.stone, x + 4, y, 10, 1);
+  g.rect(P.stoneDark, x + 1, y + 4, 1, h - 4); g.rect(P.stoneDark, x + 16, y + 4, 1, h - 4);
+  g.rect(P.brown, x + 3, y + 5, 12, h - 5); g.rect(P.brown, x + 5, y + 3, 8, 2);
+  g.rect(P.brownDark, x + 9, y + 3, 1, h - 3);
+  g.rect('#c8a050', x + 7, y + 11, 1, 1); g.rect('#c8a050', x + 11, y + 11, 1, 1);
+}
+
+function shopDoor(g, x, y) {
+  g.rect(P.brownDark, x, y, 42, 2);
+  g.rect(P.wood, x + 2, y + 2, 38, 9);
+  g.rect(P.brownDark, x + 2, y + 10, 38, 1);
+  text(g, 'SOUVENIRS', x + 4, y + 4, P.curtain);
+  g.rect(P.brownDark, x + 13, y + 11, 14, 14);
+  g.rect('#4a4038', x + 15, y + 13, 10, 12);
+  for (let k = y + 15; k < y + 25; k += 3) g.rect('#7a6a50', x + 16, k, 8, 1);
+  g.rect(P.geran, x + 10, y + 21, 2, 2); g.rect(P.leaf, x + 10, y + 23, 2, 2);
+}
+
+function porch(g, x, y) {
+  g.rect(P.stoneDark, x + 3, y + 4, 17, 16);
+  g.rect(P.brown, x + 5, y + 5, 13, 15);
+  g.rect(P.glass, x + 7, y + 7, 4, 6); g.rect(P.glass, x + 13, y + 7, 4, 6);
+  g.rect(P.brownDark, x + 11, y + 5, 1, 15);
+  g.rect(P.roof, x, y, 23, 2); g.rect(P.brownDark, x + 1, y + 2, 21, 2);
+  g.rect('#f0e0a0', x + 11, y + 4, 1, 1);
+}
+
+function doubleDoor(g, x, y) {
+  g.rect(P.bord, x - 1, y - 1, 14, 19);
+  g.rect(P.brownDark, x, y, 12, 18);
+  g.rect(P.brown, x + 1, y + 1, 4, 17); g.rect(P.brown, x + 7, y + 1, 4, 17);
+  for (let k = y + 3; k < y + 18; k += 4) { g.rect(P.brownDark, x + 1, k, 4, 1); g.rect(P.brownDark, x + 7, k, 4, 1); }
+  g.rect('#c8a050', x + 5, y + 9, 1, 1);
+}
+
+/* legenda: una lettera per ogni tipo di finestra/porta (vedi GAME_DESIGN.md) */
+const TYPES = {
+  A: { it: 'Scuri rossi aperti', w: 16, h: 13, draw: (g, x, y) => shutters(g, [x + 3, y, 10, 13], 'red', true) },
+  B: { it: 'Scuri rossi chiusi', w: 12, h: 13, draw: (g, x, y) => shutters(g, [x + 1, y, 10, 13], 'red', false) },
+  C: { it: 'Scuri viola chiusi', w: 12, h: 13, draw: (g, x, y) => shutters(g, [x + 1, y, 10, 13], 'mauve', false) },
+  D: { it: 'Scuri viola aperti', w: 16, h: 13, draw: (g, x, y) => shutters(g, [x + 3, y, 10, 13], 'mauve', true) },
+  E: { it: 'Inferriata, scuri marroni, gerani', w: 16, h: 13, draw: (g, x, y) => grateWindow(g, x + 3, y) },
+  F: { it: 'Grande con inferriata', w: 11, h: 16, draw: (g, x, y) => grate(g, x, y, 11, 16) },
+  G: { it: 'Piccola con rastrelliera', w: 9, h: 13, draw: (g, x, y) => { plain(g, x + 1, y + 1, 6, 8); rack(g, x - 1, y + 9, 11); } },
+  H: { it: 'Finestrella bassa', w: 10, h: 8, draw: lowWindow },
+  K: { it: 'Abbaino mansarda', w: 12, h: 10, draw: (g, x, y) => dormer(g, x + 2, y + 3, 8, 7) },
+  P: { it: 'Portone ad arco', w: 18, h: 21, draw: archDoor },
+  Q: { it: 'Negozio Souvenirs', w: 42, h: 25, draw: shopDoor },
+  R: { it: 'Ingresso con tettoia', w: 23, h: 20, draw: porch },
+  T: { it: 'Porta a due ante', w: 12, h: 18, draw: doubleDoor }
+};
 
 function street(g) {
   g.rect(P.walk, 0, STREET, W, 8);
@@ -251,6 +294,6 @@ function street(g) {
 
 function draw(g, look) { background(g); building(g, look); street(g); }
 
-const api = { W, H, P, APTS, LOOK, FONT, text, draw, background, building, street };
+const api = { W, H, P, APTS, LOOK, FONT, TYPES, text, draw, background, building, street };
 if (typeof module != 'undefined') module.exports = api; else root.BuildingArt = api;
 })(this);

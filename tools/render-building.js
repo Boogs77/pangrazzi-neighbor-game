@@ -3,16 +3,16 @@ const fs = require('fs'), path = require('path'), zlib = require('zlib');
 const A = require('../building-art.js');
 const SCALE = 4;
 
-function canvas() {
-  const buf = new Uint8Array(A.W * A.H * 4);
+function canvas(W = A.W, H = A.H) {
+  const buf = new Uint8Array(W * H * 4);
   return {
-    buf,
+    buf, W, H,
     rect(c, x, y, w, h) {
       const n = parseInt(c.slice(1), 16), al = c.length > 7 ? (n & 255) / 255 : 1;
       const rgb = c.length > 7 ? n >>> 8 : n, r = rgb >> 16 & 255, g = rgb >> 8 & 255, b = rgb & 255;
-      for (let j = Math.max(0, y); j < Math.min(A.H, y + h); j++)
-        for (let i = Math.max(0, x); i < Math.min(A.W, x + w); i++) {
-          const k = (j * A.W + i) * 4;
+      for (let j = Math.max(0, y); j < Math.min(H, y + h); j++)
+        for (let i = Math.max(0, x); i < Math.min(W, x + w); i++) {
+          const k = (j * W + i) * 4;
           buf[k] += (r - buf[k]) * al; buf[k + 1] += (g - buf[k + 1]) * al; buf[k + 2] += (b - buf[k + 2]) * al; buf[k + 3] = 255;
         }
     }
@@ -27,9 +27,9 @@ function chunk(type, data) {
   return Buffer.concat([len, t, data, out]);
 }
 function png(cv, file) {
-  const w = A.W * SCALE, h = A.H * SCALE, raw = Buffer.alloc((w * 4 + 1) * h);
+  const w = cv.W * SCALE, h = cv.H * SCALE, raw = Buffer.alloc((w * 4 + 1) * h);
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-    const s = ((y / SCALE | 0) * A.W + (x / SCALE | 0)) * 4, d = y * (w * 4 + 1) + 1 + x * 4;
+    const s = ((y / SCALE | 0) * cv.W + (x / SCALE | 0)) * 4, d = y * (w * 4 + 1) + 1 + x * 4;
     raw[d] = cv.buf[s]; raw[d + 1] = cv.buf[s + 1]; raw[d + 2] = cv.buf[s + 2]; raw[d + 3] = 255;
   }
   const ihdr = Buffer.alloc(13);
@@ -61,3 +61,21 @@ A.APTS.forEach((p, i) => {
   A.text(cv, s, lx, ly, '#ffffff');
 });
 png(cv, path.join(out, 'facciata-appartamenti.png'));
+
+// legenda dei tipi di finestra/porta
+const rows = [['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'K'], ['P', 'Q', 'R', 'T']];
+cv = canvas(200, 92);
+cv.rect(A.P.wall, 0, 0, cv.W, cv.H);
+rows.forEach((row, ri) => {
+  let x = 6;
+  const base = ri ? 78 : 30;
+  row.forEach(k => {
+    const t = A.TYPES[k], cw = Math.max(t.w, 9);
+    t.draw(cv, x + (cw - t.w >> 1), base - t.h);
+    const lx = x + (cw >> 1) - 2;
+    cv.rect('#000000', lx - 2, base + 3, 7, 9);
+    A.text(cv, k, lx, base + 5, '#ffffff');
+    x += cw + 9;
+  });
+});
+png(cv, path.join(out, 'legenda.png'));

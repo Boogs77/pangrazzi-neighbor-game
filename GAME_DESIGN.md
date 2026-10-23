@@ -52,6 +52,43 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 - Retro (`02`): vicolo lastricato, ingresso secondario con tettoia, staccionata in legno, muro in pietra, bosco ripido.
 - Sfondo: montagne con **abeti**, cielo nuvoloso; in fondo alla via edificio rosa/salmone (Terme).
 
+*Legenda finestre e porte* — `reference/legenda.png`
+
+| Lettera | Tipo | Dove si vede |
+|---|---|---|
+| **A** | Finestra con scuri rossi **aperti** | ultimo piano |
+| **B** | Finestra con scuri rossi/bordeaux **chiusi** | tutti i piani |
+| **C** | Finestra con scuri viola **chiusi** | piani intermedi |
+| **D** | Finestra con scuri viola **aperti** | piani intermedi |
+| **E** | Finestra piano terra con **inferriata**, scuri marroni e gerani | corpo lungo, piano terra |
+| **F** | Finestra **grande con inferriata**, senza scuri | testata, fila bassa |
+| **G** | Finestra **piccola con tenda** e rastrelliera in legno | testata, fila bassa |
+| **H** | **Finestrella bassa** con scuri marroni | piano terra |
+| **K** | **Abbaino** della mansarda | tetto |
+| **P** | **Portone ad arco** in pietra | ingresso condominio |
+| **Q** | **Negozio Souvenirs** (porta + insegna) | piano terra |
+| **R** | **Ingresso esterno con tettoia** | testata |
+| **T** | **Porta in legno a due ante** | piano terra |
+
+Simboli: `|` = pluviale · `-` = muro senza aperture
+
+*Formato delle liste*: un blocco alla volta, una riga per piano dall'alto, lettere da sinistra a destra. Esempio = disegno attuale v2:
+
+```
+BLOCCO CORPO LUNGO
+3° piano:     A B A A | B A A B
+2° piano:     C B C C | C B D C
+1° piano:     B C C D | B C C C
+piano terra:  H P E E | Q
+
+BLOCCO TESTATA
+mansarda:     K
+3° piano:     A A A | A B
+2° piano:     B B B | B B
+1° piano:     F G G G | G G G
+piano terra:  R
+```
+
 *Proposta v2* — `reference/facciata-proposta.png`, `reference/facciata-appartamenti.png`
 (codice: `building-art.js`, rigenera con `node tools/render-building.js`)
 - Canvas **240×135** (16:9).
