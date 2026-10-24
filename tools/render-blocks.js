@@ -255,3 +255,20 @@ blocks.forEach(b => console.log(b.name, b.rows.map(r => r.label + ':' + r.items.
 const cv = drawAll(blocks);
 png(cv, path.join(out, 'edificio.png'));
 png(drawApartments(cv, blocks), path.join(out, 'edificio-appartamenti.png'));
+
+// posizione delle unità sulla facciata, per renderle cliccabili nel gioco (facade-data.js)
+const units = {};
+blocks.forEach(b => b.rows.forEach(r => r.items.forEach(it => {
+  if (!it.apt || !it.box) return;
+  const u = units[it.apt] || (units[it.apt] = { n: parseInt(it.apt, 36), kind: 'apt', boxes: [], ks: '' });
+  u.boxes.push(it.box);
+  u.ks += it.k;
+})));
+Object.values(units).forEach(u => {
+  u.kind = /Q/.test(u.ks) ? 'shop' : /P/.test(u.ks) ? 'common' : /^[HU]+$/.test(u.ks) ? 'cellar' : 'apt';
+  delete u.ks;
+});
+const facade = { w: cv.W, h: cv.H, units: Object.values(units).sort((a, b) => a.n - b.n) };
+fs.writeFileSync(path.join(__dirname, '..', 'facade-data.js'),
+  '/* Generato da tools/render-blocks.js: non modificare a mano. */\nwindow.FACADE = ' + JSON.stringify(facade) + ';\n');
+console.log('scritto facade-data.js:', facade.units.length, 'unità');

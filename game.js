@@ -4,6 +4,7 @@
 'use strict';
 const W = 240, H = 135;
 const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const S = cv.width / W;   // pixel reali per pixel di gioco (canvas 1200x675 => 5)
 const wrap = document.getElementById('wrap'), nameInput = document.getElementById('name');
 const F = window.PixelFont, AD = window.AdminsArt;
 const g = { rect(c, x, y, w, h) { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); } };
@@ -95,23 +96,17 @@ const Title = {
   draw() {
     g.rect(C.bg, 0, 0, W, H);
     center('Pangrazzi', 3, C.y, 3);
-    center('The Neighbor Game', 21, C.ink);
-    g.rect(C.y, 0, 28, W, 1);
-    // il condominio intero e fermo, ridotto alla larghezza dello schermo
-    if (bg.complete && bg.naturalWidth) {
-      const w = 200, h = Math.round(w * bg.naturalHeight / bg.naturalWidth), x = (W - w) >> 1;
-      g.rect(C.ink, x - 1, 30, w + 2, h + 2);
-      ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(bg, x, 31, w, h);
-      ctx.imageSmoothingEnabled = false;
-    }
-    g.rect(C.y, 0, 106, W, 1);
+    center('The Neighbor Game', 20, C.ink);
+    // il condominio intero e fermo, a tutta larghezza: stessa immagine (nitida) dell'arcade
+    g.rect(C.y, 0, 26, W, 1);
+    drawFacadeImage(27);
+    g.rect(C.y, 0, 116, W, 1);
     F.wrap(L("Sei l'amministratore del Condominio Pangrazzi e devi puntare alla felicita di tutti i condomini.",
       'You are the administrator of the Pangrazzi condominium, and your goal is the happiness of every resident.'), 56)
-      .forEach((l, i) => center(l, 108 + i * 7));
-    button(95, 122, 50, 11, L('Gioca', 'Play'), () => go(Choose));
-    button(197, 2, 17, 9, 'IT', () => setLang('it'), lang == 'it' ? C.y : C.dim);
-    button(218, 2, 17, 9, 'EN', () => setLang('en'), lang == 'en' ? C.y : C.dim);
+      .forEach((l, i) => center(l, 119 + i * 7));
+    button(192, 5, 44, 13, L('Gioca', 'Play'), () => go(Choose));
+    button(3, 3, 17, 9, 'IT', () => setLang('it'), lang == 'it' ? C.y : C.dim);
+    button(23, 3, 17, 9, 'EN', () => setLang('en'), lang == 'en' ? C.y : C.dim);
   },
   key(k) { if (k == 'Enter' || k == ' ') go(Choose); }
 };
@@ -120,7 +115,7 @@ const Title = {
 const Choose = {
   enter() { this.i = store.get('admin', 0); },
   move(d) { this.i = (this.i + d + 5) % 5; },
-  pick() { store.set('admin', this.i); go(Menu); },
+  pick() { store.set('admin', this.i); go(Mode); },
   draw() {
     const i = this.i, a = adminText(i);
     g.rect(C.bg, 0, 0, W, H);
@@ -173,44 +168,217 @@ const Menu = {
     });
     center(L('Altri 11 minigiochi in arrivo...', '11 more minigames coming soon...'), 108, C.dim);
     button(8, 119, 112, 12, L('Cambia amministratore', 'Change administrator'), () => go(Choose), C.pan, C.ink);
-    button(180, 119, 52, 12, L('Titolo', 'Title'), () => go(Title), C.pan, C.ink);
+    button(180, 119, 52, 12, L('Indietro', 'Back'), () => go(Mode), C.pan, C.ink);
+  },
+  key(k) { if (k == 'Escape') go(Mode); }
+};
+
+/* =================== MODALITÀ: ARCADE O MINIGIOCHI =================== */
+const Mode = {
+  draw() {
+    g.rect(C.bg, 0, 0, W, H);
+    center(L('Come vuoi giocare?', 'How do you want to play?'), 4, C.y);
+    g.rect(C.y, 0, 12, W, 1);
+    text(L('Amministratore: ', 'Administrator: ') + adminText(store.get('admin', 0)).name, 6, 16, C.dim);
+    const cards = [
+      { t: 'Arcade', d: L('Turni sempre piu difficili: clicca sugli appartamenti che chiedono aiuto e fai felici i condomini.',
+          'Harder and harder turns: click the flats that call for help and keep the residents happy.'),
+        rec: records('arcade')[0], fn: () => go(Arcade, true) },
+      { t: L('Minigiochi', 'Minigames'), d: L('Scegli un minigioco e allenati quanto vuoi.', 'Pick a minigame and practise as much as you like.'),
+        rec: null, fn: () => go(Menu) }
+    ];
+    cards.forEach((c, k) => {
+      const x = 8 + k * 116, y = 26, w = 108, h = 88;
+      panel(x, y, w, h);
+      center(c.t, y + 4, C.y, 2, x, w);
+      para(c.d, x + 4, y + 20, 26);
+      if (k == 0) center(c.rec ? L('Record: ', 'Best: ') + c.rec.name + ' ' + c.rec.score : L('Nessun record', 'No record yet'), y + 63, C.dim, 1, x, w);
+      button(x + 24, y + 73, 60, 11, L('Gioca', 'Play'), c.fn);
+    });
+    button(8, 120, 112, 12, L('Cambia amministratore', 'Change administrator'), () => go(Choose), C.pan, C.ink);
+    button(180, 120, 52, 12, L('Titolo', 'Title'), () => go(Title), C.pan, C.ink);
   },
   key(k) { if (k == 'Escape') go(Title); }
 };
 
-/* =================== SPIEGAZIONE PRIMA DEL GIOCO =================== */
-const Intro = {
-  enter(gm) { this.gm = gm; this.t = 0; },
-  update(dt) { this.t += dt; },
+/* =================== ARCADE: IL CONDOMINIO E I SUOI PROBLEMI =================== */
+// ogni turno aggiunge 2 minigiochi; per ora esiste solo il primo
+const TURNS = [{ games: ['leak', 'mush'], dur: 75, every: [6, 10], max: 2, deadline: 25 }];
+const FY = 14;                                       // la facciata parte sotto la barra in alto
+const fs_ = () => W / FACADE.w;                      // scala facciata -> schermo
+let run = null;
+
+function unitBox(u) {
+  const s = fs_(), x0 = Math.min(...u.boxes.map(b => b[0])), y0 = Math.min(...u.boxes.map(b => b[1]));
+  const x1 = Math.max(...u.boxes.map(b => b[0] + b[2])), y1 = Math.max(...u.boxes.map(b => b[1] + b[3]));
+  return [x0 * s, FY + y0 * s, (x1 - x0) * s, (y1 - y0) * s];
+}
+function drawFacadeImage(y) {
+  if (bg.complete && bg.naturalWidth) ctx.drawImage(bg, 0, y, W, FACADE.h * fs_());
+}
+function drawFacade() {
+  g.rect(C.bg, 0, 0, W, H);
+  drawFacadeImage(FY);
+}
+function miniIcon(id, x, y) {
+  if (id == 'leak') { ell('#1a1420', x, y + 1, 3, 3); ell('#4fa8ff', x, y + 1, 2, 2); g.rect('#4fa8ff', x, y - 3, 1, 2); }
+  else drawMush('p', x, y + 3, .4);
+}
+const GAME = id => GAMES.find(gm => gm.id == id);
+const ARCADE = { id: 'arcade', title: () => 'Arcade', drawBg: drawFacade, restart: () => go(Arcade, true), back: () => go(Mode) };
+
+const Arcade = {
+  enter(fresh) {
+    if (fresh || !run) run = { turn: 0, t: 0, score: 0, happy: 60, problems: [], next: 2, fx: [] };
+  },
+  cfg() { return TURNS[run.turn]; },
+  update(dt) {
+    const cfg = this.cfg();
+    run.t += dt;
+    run.fx.forEach(f => f.t += dt); run.fx = run.fx.filter(f => f.t < 1.5);
+    run.problems.forEach(p => p.left -= dt);
+    run.problems.filter(p => p.left <= 0).forEach(p => {
+      run.happy = Math.max(0, run.happy - 15);
+      const [x, y, w] = unitBox(FACADE.units.find(u => u.n == p.n));
+      run.fx.push({ x: x + w / 2, y, t: 0, s: L('Arrabbiato!', 'Angry!') });
+    });
+    run.problems = run.problems.filter(p => p.left > 0);
+    if ((run.next -= dt) <= 0 && run.t < cfg.dur - 8) {
+      const busy = run.problems.map(p => p.n), free = FACADE.units.filter(u => u.kind == 'apt' && !busy.includes(u.n));
+      if (run.problems.length < cfg.max && free.length)
+        run.problems.push({ n: pick(free).n, game: pick(cfg.games), left: cfg.deadline, total: cfg.deadline });
+      run.next = rnd(...cfg.every);
+    }
+    if (run.happy <= 0) go(TurnEnd, true);
+    else if (run.t >= cfg.dur) go(TurnEnd, false);
+  },
   draw() {
-    const gm = this.gm;
+    drawFacade();
+    const blink = (run.t * 4 | 0) % 2;
+    run.problems.forEach(p => {
+      const u = FACADE.units.find(v => v.n == p.n), s = fs_();
+      u.boxes.forEach(b => g.rect(blink ? '#ff8a00b0' : '#fff7d6a0', b[0] * s, FY + b[1] * s, b[2] * s, b[3] * s));
+      const [x, y, w, h] = unitBox(u), f = p.left / p.total;
+      g.rect('#000000', x, y + h + 1, w, 2); g.rect(f > .4 ? C.g : C.r, x, y + h + 1, w * f, 2);
+      g.rect(C.ink, x + w / 2 - 5, y - 9, 11, 9); g.rect(C.panD, x + w / 2 - 4, y - 8, 9, 7);
+      miniIcon(p.game, x + w / 2, y - 5);
+    });
+    run.fx.forEach(f => text(f.s, f.x - F.width(f.s) / 2, f.y - 10 - f.t * 8, C.r));
+    // barra in alto: turno, tempo, punti, felicità
+    const cfg = this.cfg();
+    g.rect(C.bg, 0, 0, W, FY - 1);
+    text(L('Turno ', 'Turn ') + (run.turn + 1), 3, 3, C.y);
+    text(Math.max(0, Math.ceil(cfg.dur - run.t)) + 's', 44, 3, C.dim);
+    text(L('Punti ', 'Score ') + run.score, 68, 3, C.ink);
+    text(L('Felicita', 'Happiness'), 140, 3, C.ink);
+    g.rect('#000000', 182, 3, 54, 5);
+    g.rect(run.happy > 50 ? C.g : run.happy > 25 ? C.y : C.r, 182, 3, 54 * run.happy / 100, 5);
+    // elenco problemi in basso
+    const by = FY + Math.round(FACADE.h * fs_()) + 2;
+    panel(4, by, 232, H - by - 2);
+    if (!run.problems.length) center(L('Tutto tranquillo... per ora.', 'All quiet... for now.'), by + 4, C.dim);
+    else {
+      center(L("Clicca sull'appartamento che lampeggia", 'Click the flashing flat'), by + 3, C.y);
+      run.problems.slice(0, 2).forEach((p, k) => {
+        miniIcon(p.game, 10, by + 13 + k * 7);
+        text(L('Int. ', 'Flat ') + p.n + ' - ' + GAME(p.game).title() + '  ' + Math.ceil(p.left) + 's', 16, by + 11 + k * 7, C.ink);
+      });
+    }
+  },
+  click(x, y) {
+    const s = fs_(), lx = x / s, ly = (y - FY) / s, pad = 2 / s;
+    const p = run.problems.find(p => FACADE.units.find(u => u.n == p.n).boxes
+      .some(b => lx >= b[0] - pad && lx <= b[0] + b[2] + pad && ly >= b[1] - pad && ly <= b[1] + b[3] + pad));
+    if (p) go(Intro, GAME(p.game), { p });
+  },
+  key(k) { if (k == 'Escape') go(Mode); }
+};
+
+/* risultato di un intervento in modalità arcade */
+const ArcadeResult = {
+  enter(gm, m, actx) {
+    this.gm = gm; this.m = m; this.d = m.success ? 10 : -10;
+    run.score += m.score;
+    run.happy = Math.max(0, Math.min(100, run.happy + this.d));
+    run.problems = run.problems.filter(p => p !== actx.p);
+  },
+  draw() {
+    this.gm.drawBg();
+    g.rect('#0d0f24c8', 0, 0, W, H);
+    panel(40, 20, 160, 80);
+    center(this.m.success ? L('Risolto!', 'Solved!') : L('Non risolto...', 'Not solved...'), 26, this.m.success ? C.g : C.r, 2);
+    center('+' + this.m.score + L(' punti', ' points'), 46, C.ink);
+    center(L('Felicita ', 'Happiness ') + (this.d > 0 ? '+' : '') + this.d, 56, this.d > 0 ? C.g : C.r);
+    center(L('Totale: ', 'Total: ') + run.score, 70, C.y);
+    button(85, 84, 70, 12, L('Continua', 'Continue'), () => go(Arcade));
+  },
+  key(k) { if (k == 'Enter' || k == ' ') go(Arcade); }
+};
+
+/* fine turno: per ora c'è solo il turno 1, poi si salva il record */
+const TurnEnd = {
+  enter(evicted) {
+    this.evicted = evicted;
+    run.happy = Math.max(0, run.happy - 10 * run.problems.length);  // problemi lasciati aperti
+    run.problems = [];
+    this.bonus = evicted ? 0 : run.happy * 3;
+    this.games = run.score;
+    run.score += this.bonus;
+  },
+  draw() {
+    drawFacade();
+    g.rect('#0d0f24c8', 0, 0, W, H);
+    panel(30, 10, 180, 100);
+    center(this.evicted ? L('Sfrattato!', 'Evicted!') : L('Fine turno ', 'End of turn ') + (run.turn + 1), 16, this.evicted ? C.r : C.y, 2);
+    if (this.evicted) para(L('I condomini sono troppo arrabbiati: l\'assemblea ti ha mandato via.', 'The residents are too angry: the meeting has sent you away.'), 40, 34, 40);
+    else {
+      text(L('Minigiochi', 'Minigames'), 44, 36); text(String(this.games), 196 - F.width(String(this.games)), 36);
+      text(L('Bonus felicita', 'Happiness bonus'), 44, 46); text(String(this.bonus), 196 - F.width(String(this.bonus)), 46, C.g);
+      g.rect(C.dim, 44, 55, 152, 1);
+      text(L('Totale', 'Total'), 44, 59, C.y); text(String(run.score), 196 - F.width(String(run.score)), 59, C.y);
+      para(L('Il turno 2, con 4 minigiochi, arrivera presto!', 'Turn 2, with 4 minigames, is coming soon!'), 44, 76, 38, C.dim);
+    }
+    button(85, 116, 70, 12, L('Continua', 'Continue'), () => go(End, ARCADE, run.score));
+  },
+  key(k) { if (k == 'Enter' || k == ' ') go(End, ARCADE, run.score); }
+};
+
+/* =================== SPIEGAZIONE PRIMA DEL GIOCO =================== */
+// actx (solo in arcade) = { p: problema dell'appartamento cliccato }
+const Intro = {
+  enter(gm, actx) { this.gm = gm; this.actx = actx; this.t = 0; },
+  update(dt) { this.t += dt; },
+  back() { this.actx ? go(Arcade) : go(Menu); },
+  draw() {
+    const gm = this.gm, a = this.actx;
     gm.drawBg();
     g.rect('#0d0f24c8', 0, 0, W, H);
     panel(14, 6, 212, 106);
     const shake = (this.t * 8 | 0) % 2 && this.t % 2 < .6 ? 1 : 0;
     center(gm.ring(), 11 + shake, C.r, 2);
-    center(gm.title(), 26, C.y);
+    center(gm.title() + (a ? ' - ' + L('Interno ', 'Flat ') + a.p.n : ''), 26, C.y);
     para(gm.intro(), 20, 37, 50);
-    center(gm.tip(), 104, C.b);
-    button(20, 119, 70, 12, L('Indietro', 'Back'), () => go(Menu), C.pan, C.ink);
-    button(150, 119, 70, 12, L('Via!', 'Go!'), () => go(Play, gm));
+    center(gm.tip(!!a), 104, C.b);
+    button(20, 119, 70, 12, L('Indietro', 'Back'), () => this.back(), C.pan, C.ink);
+    button(150, 119, 70, 12, L('Via!', 'Go!'), () => go(Play, gm, a));
   },
-  key(k) { if (k == 'Enter' || k == ' ') go(Play, this.gm); else if (k == 'Escape') go(Menu); }
+  key(k) { if (k == 'Enter' || k == ' ') go(Play, this.gm, this.actx); else if (k == 'Escape') this.back(); }
 };
 
 /* =================== PARTITA =================== */
 const Play = {
-  enter(gm) { this.gm = gm; this.m = gm.create(); this.endT = 0; },
+  enter(gm, actx) { this.gm = gm; this.actx = actx; this.m = gm.create({ arcade: !!actx }); this.endT = 0; },
   update(dt) {
     this.m.update(dt);
-    if (this.m.over && (this.endT += dt) > 1.6) go(End, this.gm, this.m.score);
+    if (this.m.over && (this.endT += dt) > 1.6)
+      this.actx ? go(ArcadeResult, this.gm, this.m, this.actx) : go(End, this.gm, this.m.score);
   },
   draw() {
     this.m.draw();
     if (this.m.over) { g.rect('#0d0f24c0', 0, 54, W, 24); center(this.m.reason, 60, C.y, 2); }
   },
   click(x, y) { if (!this.m.over) this.m.click(x, y); },
-  key(k) { if (k == 'Escape') go(Menu); }
+  key(k) { if (k == 'Escape') this.actx ? go(Arcade) : go(Menu); }
 };
 
 /* =================== FINE: NOME E RECORD =================== */
@@ -250,10 +418,10 @@ const End = {
         text(s, 176 - F.width(s), y, c);
       });
     }
-    button(30, 119, 80, 12, L('Rigioca', 'Play again'), () => go(Intro, gm));
-    button(130, 119, 80, 12, L('Menu', 'Menu'), () => go(Menu), C.pan, C.ink);
+    button(30, 119, 80, 12, L('Rigioca', 'Play again'), () => gm.restart ? gm.restart() : go(Intro, gm));
+    button(130, 119, 80, 12, L('Menu', 'Menu'), () => gm.back ? gm.back() : go(Menu), C.pan, C.ink);
   },
-  key(k) { if (k == 'Enter' && this.saved >= 0) go(Menu); }
+  key(k) { if (k == 'Enter' && this.saved >= 0) this.gm.back ? this.gm.back() : go(Menu); }
 };
 
 /* =================== MINIGIOCO 1: PERDITA D'ACQUA =================== */
@@ -285,9 +453,9 @@ function drawRoom() {
   [24, 118, 164].forEach(x => { g.rect('#8a9098', x - 2, 14, 4, FLOOR - 18); g.rect('#b8bec6', x - 2, 14, 1, FLOOR - 18); });
 }
 
-function makeLeak() {
+function makeLeak(opts = {}) {
   const admin = store.get('admin', 0), HEAD = FLOOR - 100 + 4;
-  const m = { t: 0, score: 0, closed: 0, level: 0, next: 1, drops: [], fx: [], over: false, reason: '',
+  const m = { t: 0, dur: opts.arcade ? 30 : Infinity, success: false, score: 0, closed: 0, level: 0, next: 1, drops: [], fx: [], over: false, reason: '',
     leaks: LEAK_PTS.map(([x, y]) => ({ x, y, on: false })) };
   m.update = dt => {
     m.fx.forEach(f => f.t += dt); m.fx = m.fx.filter(f => f.t < .8);
@@ -306,6 +474,7 @@ function makeLeak() {
     m.drops = m.drops.filter(d => d.y < wy && d.y < FLOOR);
     m.score = m.closed * 10 + (m.t | 0);
     if (wy <= HEAD) { m.over = true; m.reason = L('Sommerso!', 'Flooded!'); }
+    else if (m.t >= m.dur) { m.over = true; m.success = true; m.reason = L('Riparato!', 'Fixed!'); }
   };
   m.click = (x, y) => {
     let best = null, bd = 12;
@@ -334,7 +503,8 @@ function makeLeak() {
     const pct = Math.min(100, Math.round(m.level / (FLOOR - HEAD) * 100));
     text(L('Acqua', 'Water'), 136, 3, C.b);
     g.rect('#000000', 160, 3, 60, 5); g.rect(pct > 70 ? C.r : C.b, 160, 3, 60 * pct / 100, 5);
-    text((m.t | 0) + 's', 224, 3, C.dim);
+    const tt = (isFinite(m.dur) ? Math.max(0, Math.ceil(m.dur - m.t)) : m.t | 0) + 's';
+    text(tt, 236 - F.width(tt), 3, C.dim);
   };
   return m;
 }
@@ -383,8 +553,8 @@ function drawMush(type, x, y, k = 1) {
   else [[-4, -9], [1, -11], [3, -7], [-1, -7]].forEach(([dx, dy]) => g.rect('#ffffff', x + dx * k, y + dy * k, Math.max(1, k), Math.max(1, k)));
 }
 
-function makeMush() {
-  const m = { t: 0, dur: 45, score: 0, basket: { p: 0, f: 0 }, list: [], fx: [], next: .5, shake: 0, over: false, reason: '' };
+function makeMush(opts = {}) {
+  const m = { t: 0, dur: opts.arcade ? 25 : 45, success: false, score: 0, basket: { p: 0, f: 0 }, list: [], fx: [], next: .5, shake: 0, over: false, reason: '' };
   function spawn() {
     for (let n = 0; n < 12; n++) {
       const x = rnd(14, 226), y = rnd(70, 128);
@@ -402,7 +572,10 @@ function makeMush() {
     if ((m.next -= dt) <= 0) { spawn(); m.next = Math.max(.3, .85 - m.t * .01) * rnd(.6, 1.3); }
     m.list.forEach(s => s.age += dt);
     m.list = m.list.filter(s => s.age < s.life);
-    if (m.t >= m.dur) { m.over = true; m.reason = L('Tempo scaduto!', "Time's up!"); }
+    if (m.t >= m.dur) {
+      m.over = true; m.success = m.score >= 30;
+      m.reason = opts.arcade && m.success ? L('Cestino pieno!', 'Full basket!') : L('Tempo scaduto!', "Time's up!");
+    }
   };
   m.click = (x, y) => {
     for (let i = m.list.length - 1; i >= 0; i--) {
@@ -448,14 +621,14 @@ const GAMES = [
     ring: () => L('Driiin!', 'Riiing!'),
     intro: () => L("La signora del primo piano è al telefono: 'Amministratore, piove in salotto!'. I tubi perdono da tutte le parti, l'acqua sale. Clicca sulle perdite rosse per chiuderle prima che l'acqua ti arrivi sopra la testa!",
       "The lady on the first floor is on the phone: 'Administrator, it's raining in my living room!'. The pipes are leaking everywhere, the water is rising. Click the red leaks to shut them before the water goes over your head!"),
-    tip: () => L('Clicca sulle perdite che lampeggiano', 'Click the flashing leaks'),
+    tip: a => a ? L('Resisti 30 secondi chiudendo le perdite', 'Hold on for 30 seconds by shutting the leaks') : L('Clicca sulle perdite che lampeggiano', 'Click the flashing leaks'),
     drawBg: drawRoom, create: makeLeak, icon: iconDrop },
   { id: 'mush',
     title: () => L('Raccolta funghi', 'Mushroom hunt'),
     ring: () => L('Che bel sole!', 'What a sunny day!'),
     intro: () => L("Come ogni mattina, si parte alla ricerca di funghi. Corri nel bosco della Val di Rabbi e raccogli porcini (marroni, 10 punti) e finferli (gialli, 5 punti). Attento ai funghi rossi: sono velenosi e ti svuotano il cestino!",
       "Like every morning, off we go mushroom hunting. Run to the Val di Rabbi woods and pick porcini (brown, 10 points) and chanterelles (yellow, 5 points). Watch out for the red ones: they are poisonous and empty your basket!"),
-    tip: () => L('45 secondi: clicca sui funghi buoni', '45 seconds: click the good mushrooms'),
+    tip: a => a ? L('25 secondi: almeno 30 punti per risolvere', '25 seconds: at least 30 points to solve it') : L('45 secondi: clicca sui funghi buoni', '45 seconds: click the good mushrooms'),
     drawBg: drawForest, create: makeMush,
     icon: (cx, cy) => { drawMush('p', cx - 12, cy + 8, 1.4); drawMush('f', cx + 2, cy + 8, 1.3); drawMush('r', cx + 16, cy + 8, 1.1); } }
 ];
@@ -469,6 +642,8 @@ function frame(t) {
   last = t;
   scene.update && scene.update(dt);
   btns = [];
+  ctx.setTransform(S, 0, 0, S, 0, 0);
+  ctx.imageSmoothingEnabled = false;
   scene.draw();
   requestAnimationFrame(frame);
 }
