@@ -10,7 +10,9 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 
 ✅ **Titolo:** *Pangrazzi: The Neighbor Game* (dall'italiano "Il gioco del condomino Pangrazzi")
 
-❓ **In una frase:** _(da scrivere — es. "Sei l'amministratore del Condominio Pangrazzi e devi tenere contenti tutti i condomini")_
+✅ **In una frase:**
+- 🇮🇹 *Sei l'amministratore del Condominio Pangrazzi e devi puntare alla felicità di tutti i condomini.*
+- 🇬🇧 *You are the administrator of the Pangrazzi condominium, and your goal is the happiness of every resident.*
 
 ✅ **Pangrazzi è solo il nome del condominio** (Condominio Pangrazzi), non un personaggio.
 
@@ -282,6 +284,6 @@ Categorie: 🔧 riparazione · 📋 burocrazia · 🧑‍🤝‍🧑 condomini �
 1e. [ ] Portare la facciata v3 nel gioco (finestre cliccabili per appartamento).
 2. [ ] Scegliere gli amministratori (sezione 5) e i minigiochi (sezione 6).
 3. [ ] Rispondere alle decisioni aperte (sezione 3).
-4. [ ] Scrivere il concept in una frase (Pangrazzi = nome del condominio ✅).
+4. [x] Concept in una frase (IT/EN) — sezione 1.
 5. [ ] Pulizia tecnica: titolo, codice inutilizzato, bug di fine turno.
 6. [ ] Aggiungere sistema bilingue IT/EN.
