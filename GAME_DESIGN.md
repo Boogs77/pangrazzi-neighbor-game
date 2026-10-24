@@ -82,8 +82,8 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 | 5 | B1 ps | 3 finestre |
 | 6 | B1 pt + Bc pp | 2 + 3 finestre (esclusa quella sopra il portone) |
 | 7 | B3 pp | 4 finestre |
-| 8 | B1 pp + Bc ps | 1 + 2 finestre |
-| 9 | Bc ps + B3 ps | 2 + 1 finestre |
+| 8 | B1 pp + Bc ps | 1 + 1 finestre |
+| 9 | Bc ps + B3 ps | 3 + 1 finestre |
 | 10 | B3 ps | 3 finestre |
 | ~~11~~ | — | eliminato (numero libero) |
 | 12 | B1 ps + Bc 3° | 1 + 2 finestre |
