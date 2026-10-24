@@ -54,6 +54,7 @@ function setLang(l) { lang = l; store.set('lang', l); document.documentElement.l
 
 const pos = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height]; };
 cv.addEventListener('pointerdown', e => {
+  e.preventDefault();   // sul telefono: niente zoom, scorrimento o clic doppio simulato
   const [x, y] = pos(e);
   for (let i = btns.length - 1; i >= 0; i--) {
     const b = btns[i];
@@ -64,8 +65,15 @@ cv.addEventListener('pointerdown', e => {
 // trascinamento (tasto premuto o dito sullo schermo), usato per sventolare
 cv.addEventListener('pointermove', e => {
   if (e.pointerType == 'mouse' && !(e.buttons & 1)) return;
+  e.preventDefault();
   scene.move && scene.move(...pos(e));
 });
+// browser senza pointer events (vecchi telefoni): stessi comandi con il tocco
+if (!window.PointerEvent) {
+  const t = e => e.changedTouches[0];
+  cv.addEventListener('touchstart', e => { e.preventDefault(); cv.dispatchEvent(Object.assign(new Event('pointerdown'), { clientX: t(e).clientX, clientY: t(e).clientY })); }, { passive: false });
+  cv.addEventListener('touchmove', e => { e.preventDefault(); scene.move && scene.move(...pos(t(e))); }, { passive: false });
+}
 addEventListener('keydown', e => {
   if (e.target == nameInput) { if (e.key == 'Enter' && scene.submit) scene.submit(); return; }
   scene.key && scene.key(e.key);
