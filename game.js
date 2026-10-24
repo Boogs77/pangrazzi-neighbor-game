@@ -65,17 +65,18 @@ cv.addEventListener('pointerdown', e => {
   }
   scene.click && scene.click(x, y);
 });
-// trascinamento (tasto premuto o dito sullo schermo), usato per sventolare
+// trascinamento (tasto premuto o dito sullo schermo), usato per sventolare: va solo a scene.drag,
+// mai a funzioni con altri nomi (es. Choose.move), perché il dito si muove anche durante un semplice tocco
 cv.addEventListener('pointermove', e => {
   if (e.pointerType == 'mouse' && !(e.buttons & 1)) return;
   e.preventDefault();
-  scene.move && scene.move(...pos(e));
+  scene.drag && scene.drag(...pos(e));
 });
 // browser senza pointer events (vecchi telefoni): stessi comandi con il tocco
 if (!window.PointerEvent) {
   const t = e => e.changedTouches[0];
   cv.addEventListener('touchstart', e => { e.preventDefault(); cv.dispatchEvent(Object.assign(new Event('pointerdown'), { clientX: t(e).clientX, clientY: t(e).clientY })); }, { passive: false });
-  cv.addEventListener('touchmove', e => { e.preventDefault(); scene.move && scene.move(...pos(t(e))); }, { passive: false });
+  cv.addEventListener('touchmove', e => { e.preventDefault(); scene.drag && scene.drag(...pos(t(e))); }, { passive: false });
 }
 addEventListener('keydown', e => {
   if (e.target == nameInput) { if (e.key == 'Enter' && scene.submit) scene.submit(); return; }
@@ -96,7 +97,7 @@ function fitName() { if (nameBox) nameInput.style.fontSize = Math.max(10, wrap.c
 addEventListener('resize', fitName);
 
 const bg = new Image();
-bg.src = 'reference/edificio.png?v=202610241559';
+bg.src = 'reference/edificio.png?v=202610241602';
 
 /* --- testi inglesi degli amministratori (gli italiani sono in admins-art.js) --- */
 const ADMIN_EN = [
@@ -413,7 +414,7 @@ const Play = {
     if (this.m.over) { g.rect('#0d0f24c0', 0, 54, W, 24); center(this.m.reason, 60, C.y, 2); }
   },
   click(x, y) { if (!this.m.over) this.m.click(x, y); },
-  move(x, y) { if (!this.m.over && this.m.move) this.m.move(x, y); },
+  drag(x, y) { if (!this.m.over && this.m.drag) this.m.drag(x, y); },
   key(k) { if (k == 'Escape') this.actx ? go(Arcade) : go(Menu); }
 };
 
@@ -802,7 +803,7 @@ function makeSmoke(opts = {}) {
   };
   m.click = (x, y) => blow(x, y, 7);
   let last = null;
-  m.move = (x, y) => {
+  m.drag = (x, y) => {
     if (last) blow(x, y, Math.min(4, Math.hypot(x - last[0], y - last[1]) * .3));
     last = [x, y];
     clearTimeout(m.lastT); m.lastT = setTimeout(() => last = null, 120);
