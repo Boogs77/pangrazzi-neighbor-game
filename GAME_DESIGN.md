@@ -70,10 +70,10 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 **Regole del formato** (oltre alla legenda sotto)
 - Ogni carattere = una colonna (6 px); passo finestre = 4 caratteri.
 - `>` / `<` subito dopo una lettera = mezza colonna a destra / sinistra.
-- Righe: `MS:` mansarda · `zc:` zoccolo · `ap:` appartamenti della riga sopra (stessa colonna della finestra; `1`–`9`, poi `a`=10, `b`=11 … `j`=19).
+- Righe: `MS:` mansarda · `zc:` zoccolo · `ap:` appartamenti della riga sopra (stessa colonna della finestra; `1`–`9`, poi `a`=10, `b`=11 … `k`=20).
 - Un piano terra con P/Q/T è "basso" (alto quanto la porta); F scende fino allo zoccolo; L si attacca al muro dal lato in cui è scritto.
 
-**Appartamenti (19)** — vedi `edificio-appartamenti.png`
+**Appartamenti (20)** — vedi `edificio-appartamenti.png`
 | Int. | Dove | Composizione |
 |---|---|---|
 | 1 | B1 pt | F + 6 finestrelle G |
@@ -94,7 +94,8 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 | 16 | mansarda | 4° e 5° abbaino |
 | 17 | B3 3° | solo il terrazzo laterale destro |
 | 18 | B3 pt | ⭐ **NEGOZIO Souvenirs**: 3 finestrelle G + porta Q (in evidenza nell'immagine) |
-| 19 | zoccolo B1 + pt Bc | 🔧 **CANTINA** (spazio comune): 4 finestrelle H + porticina U — appartamento speciale dove devono intervenire tutti (bordo tratteggiato nell'immagine) |
+| 19 | zoccolo B1 | 🔧 **CANTINA** (spazio comune): finestrella H + porticina U — speciale, intervengono tutti (bordo tratteggiato) |
+| 20 | pt Bc | 🔧 **CANTINA** (spazio comune): 3 finestrelle H — speciale, intervengono tutti (bordo tratteggiato) |
 
 ❓ **Da assegnare**: solo la finestra sopra il portone (Bc pp).
 ❓ Le finestrelle G accanto al negozio (blocco 3) sono davvero G o E (inferriata + gerani)?
