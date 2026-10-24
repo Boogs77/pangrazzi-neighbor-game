@@ -3,7 +3,10 @@
 (() => {
 'use strict';
 const W = 240, H = 135;
-const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const cv = document.getElementById('c');
+// ?lo=1 nell'indirizzo: canvas a bassa risoluzione (prova per i telefoni che non disegnano quello grande)
+if (/[?&]lo=1/.test(location.search)) { cv.width = W; cv.height = H; }
+const ctx = cv.getContext('2d');
 const S = cv.width / W;   // pixel reali per pixel di gioco (canvas 1200x675 => 5)
 const wrap = document.getElementById('wrap'), nameInput = document.getElementById('name');
 const F = window.PixelFont, AD = window.AdminsArt;
@@ -93,7 +96,7 @@ function fitName() { if (nameBox) nameInput.style.fontSize = Math.max(10, wrap.c
 addEventListener('resize', fitName);
 
 const bg = new Image();
-bg.src = 'reference/edificio.png?v=202610241556';
+bg.src = 'reference/edificio.png?v=202610241559';
 
 /* --- testi inglesi degli amministratori (gli italiani sono in admins-art.js) --- */
 const ADMIN_EN = [
