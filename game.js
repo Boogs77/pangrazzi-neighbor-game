@@ -434,7 +434,7 @@ const End = {
   },
   submit() {
     if (this.saved >= 0) return;
-    const n = (nameInput.value.trim() || 'BOOGS')   // nome vuoto: BOOGS.toUpperCase().slice(0, 10);
+    const n = (nameInput.value.trim() || 'BOOGS').toUpperCase().slice(0, 10);   // nome vuoto: BOOGS
     store.set('lastName', n);
     this.saved = addRecord(this.gm.id, n, this.score);
     hideName();
