@@ -453,8 +453,8 @@ const GAMES = [
   { id: 'mush',
     title: () => L('Raccolta funghi', 'Mushroom hunt'),
     ring: () => L('Che bel sole!', 'What a sunny day!'),
-    intro: () => L("Il condominio organizza la polentata e mancano i funghi! Corri nel bosco della Val di Rabbi e raccogli porcini (marroni, 10 punti) e finferli (gialli, 5 punti). Attento ai funghi rossi: sono velenosi e ti svuotano il cestino!",
-      "The building is having a polenta party and there are no mushrooms! Run to the Val di Rabbi woods and pick porcini (brown, 10 points) and chanterelles (yellow, 5 points). Watch out for the red ones: they are poisonous and empty your basket!"),
+    intro: () => L("Come ogni mattina, si parte alla ricerca di funghi. Corri nel bosco della Val di Rabbi e raccogli porcini (marroni, 10 punti) e finferli (gialli, 5 punti). Attento ai funghi rossi: sono velenosi e ti svuotano il cestino!",
+      "Like every morning, off we go mushroom hunting. Run to the Val di Rabbi woods and pick porcini (brown, 10 points) and chanterelles (yellow, 5 points). Watch out for the red ones: they are poisonous and empty your basket!"),
     tip: () => L('45 secondi: clicca sui funghi buoni', '45 seconds: click the good mushrooms'),
     drawBg: drawForest, create: makeMush,
     icon: (cx, cy) => { drawMush('p', cx - 12, cy + 8, 1.4); drawMush('f', cx + 2, cy + 8, 1.3); drawMush('r', cx + 16, cy + 8, 1.1); } }
