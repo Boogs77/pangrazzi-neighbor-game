@@ -210,18 +210,21 @@ function drawApartments(cv, blocks) {
   const apts = new Map();
   blocks.forEach(b => b.rows.forEach(r => r.items.forEach(it => {
     if (!it.apt || !it.box) return;
-    const a = apts.get(it.apt) || apts.set(it.apt, { boxes: [], shop: false, cellar: true }).get(it.apt);
+    const a = apts.get(it.apt) || apts.set(it.apt, { boxes: [], shop: false, cellar: true, common: false }).get(it.apt);
     a.boxes.push(it.box);
     if (it.k == 'Q') a.shop = true;
+    if (it.k == 'P') a.common = true; // portone: parte comune
     if (it.k != 'H' && it.k != 'U') a.cellar = false; // cantina: solo finestrelle H e porticina U
   })));
-  [...apts].forEach(([id, { boxes, shop, cellar }]) => {
+  const placed = []; // scritte già messe, per non sovrapporle
+  const minX = ([, a]) => Math.min(...a.boxes.map(q => q[0]));
+  [...apts].sort((p, q) => minX(p) - minX(q)).forEach(([id, { boxes, shop, cellar, common }]) => {
     const c = APT_COL[parseInt(id, 36) % APT_COL.length]; // colore fisso per numero
     const x0 = Math.min(...boxes.map(q => q[0])) - 2, y0 = Math.min(...boxes.map(q => q[1])) - 2;
     const x1 = Math.max(...boxes.map(q => q[0] + q[2])) + 2, y1 = Math.max(...boxes.map(q => q[1] + q[3])) + 2;
     cv.rect(c + '40', x0, y0, x1 - x0, y1 - y0);
-    if (cellar) {
-      // cantina, spazio comune di tutti: bordo tratteggiato
+    if (cellar || common) {
+      // cantina e parti comuni, spazi di tutti: bordo tratteggiato
       for (let x = x0; x < x1; x += 4) { cv.rect(c, x, y0, 2, 1); cv.rect(c, x, y1 - 1, 2, 1); }
       for (let y = y0; y < y1; y += 4) { cv.rect(c, x0, y, 1, 2); cv.rect(c, x1 - 1, y, 1, 2); }
     } else {
@@ -233,9 +236,12 @@ function drawApartments(cv, blocks) {
       cv.rect(c, x0 + 2, y0 + 2, x1 - x0 - 4, 1); cv.rect(c, x0 + 2, y1 - 3, x1 - x0 - 4, 1);
       cv.rect(c, x0 + 2, y0 + 2, 1, y1 - y0 - 4); cv.rect(c, x1 - 3, y0 + 2, 1, y1 - y0 - 4);
     }
-    const label = String(parseInt(id, 36)) + (shop ? ' NEGOZIO' : cellar ? ' CANTINA' : ''); // a = 10, b = 11, ...
+    const label = String(parseInt(id, 36)) + (shop ? ' NEGOZIO' : cellar ? ' CANTINA' : common ? ' COMUNE' : ''); // a = 10, b = 11, ...
     // se la scritta non entra nel riquadro va subito sotto
-    const lx = (x0 + x1 >> 1) - label.length * 2, ly = label.length * 4 > x1 - x0 - 4 ? y1 + 2 : (y0 + y1 >> 1) - 3;
+    let lx = (x0 + x1 >> 1) - label.length * 2;
+    const ly = label.length * 4 > x1 - x0 - 4 ? y1 + 2 : (y0 + y1 >> 1) - 3, lw = label.length * 4 + 1;
+    for (let q; (q = placed.find(p => lx < p[0] + p[2] + 2 && p[0] < lx + lw + 2 && Math.abs(p[1] - ly) < 8));) lx = q[0] + q[2] + 3;
+    placed.push([lx, ly, lw]);
     cv.rect('#000000c0', lx - 1, ly - 1, label.length * 4 + 1, 7);
     A.text(cv, label, lx, ly, '#ffffff');
   });

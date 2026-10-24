@@ -70,10 +70,10 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 **Regole del formato** (oltre alla legenda sotto)
 - Ogni carattere = una colonna (6 px); passo finestre = 4 caratteri.
 - `>` / `<` subito dopo una lettera = mezza colonna a destra / sinistra.
-- Righe: `MS:` mansarda · `zc:` zoccolo · `ap:` appartamenti della riga sopra (stessa colonna della finestra; `1`–`9`, poi `a`=10, `b`=11 … `k`=20).
+- Righe: `MS:` mansarda · `zc:` zoccolo · `ap:` appartamenti della riga sopra (stessa colonna della finestra; `1`–`9`, poi `a`=10, `b`=11 … `l`=21).
 - Un piano terra con P/Q/T è "basso" (alto quanto la porta); F scende fino allo zoccolo; L si attacca al muro dal lato in cui è scritto.
 
-**Appartamenti (20)** — vedi `edificio-appartamenti.png`
+**Appartamenti (21)** — vedi `edificio-appartamenti.png`
 | Int. | Dove | Composizione |
 |---|---|---|
 | 1 | B1 pt | ingresso R + F + 6 finestrelle G |
@@ -96,8 +96,9 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 | 18 | B3 pt | ⭐ **NEGOZIO Souvenirs**: 3 finestrelle G + porta Q (in evidenza nell'immagine) |
 | 19 | zoccolo B1 + pt Bc | 🔧 **CANTINA** (spazio comune): 2 finestrelle H + porticina U — speciale, intervengono tutti (bordo tratteggiato) |
 | 20 | pt Bc | 🔧 **CANTINA** (spazio comune): 2 finestrelle H + porticina U — speciale, intervengono tutti (bordo tratteggiato) |
+| 21 | Bc pp + pt | 🏛️ **PARTE COMUNE**: portone P + finestra sopra (androne/scale) — non è di nessuno ma è oggetto del gioco (bordo tratteggiato) |
 
-❓ **Da assegnare**: solo la finestra sopra il portone (Bc pp).
+✅ Tutte le finestre e porte sono assegnate. Speciali: 18 negozio (bordo doppio), 19–20 cantine e 21 parte comune (bordo tratteggiato).
 ❓ Le finestrelle G accanto al negozio (blocco 3) sono davvero G o E (inferriata + gerani)?
 
 *Legenda finestre e porte* — `reference/legenda.png`
@@ -282,7 +283,7 @@ Categorie: 🔧 riparazione · 📋 burocrazia · 🧑‍🤝‍🧑 condomini �
 1. [x] Fornire l'indirizzo del condominio reale.
 1b. [x] Foto della facciata (salvate in `reference/`).
 1c. [x] Facciata v3 disegnata da `reference/edificio.md` (3 blocchi, pendenza, mansarda).
-1d. [ ] Finire la divisione in appartamenti (manca la finestra sopra il portone).
+1d. [x] Divisione in appartamenti completata (21, di cui 4 speciali).
 1e. [ ] Portare la facciata v3 nel gioco (finestre cliccabili per appartamento).
 2. [ ] Scegliere gli amministratori (sezione 5) e i minigiochi (sezione 6).
 3. [ ] Rispondere alle decisioni aperte (sezione 3).
