@@ -97,7 +97,7 @@ function fitName() { if (nameBox) nameInput.style.fontSize = Math.max(10, wrap.c
 addEventListener('resize', fitName);
 
 const bg = new Image();
-bg.src = 'reference/edificio.png?v=202610241816';
+bg.src = 'reference/edificio.png?v=202610241818';
 
 /* --- testi inglesi degli amministratori (gli italiani sono in admins-art.js) --- */
 const ADMIN_EN = [
@@ -231,7 +231,8 @@ const TURNS = [
   { games: ['leak', 'mush', 'mouse', 'smoke'], dur: 90, every: [5, 8], max: 3, deadline: 22 },
   { games: ['leak', 'mush', 'mouse', 'smoke', 'gas', 'snow'], dur: 100, every: [4, 7], max: 3, deadline: 20 },
   { games: ['leak', 'mush', 'mouse', 'smoke', 'gas', 'snow', 'ice', 'wood'], dur: 110, every: [4, 6], max: 3, deadline: 20 },
-  { games: ['leak', 'mush', 'mouse', 'smoke', 'gas', 'snow', 'ice', 'wood', 'bear', 'recycle'], dur: 120, every: [3.5, 6], max: 4, deadline: 20 }
+  { games: ['leak', 'mush', 'mouse', 'smoke', 'gas', 'snow', 'ice', 'wood', 'bear', 'recycle'], dur: 120, every: [3.5, 6], max: 4, deadline: 20 },
+  { games: ['leak', 'mush', 'mouse', 'smoke', 'gas', 'snow', 'ice', 'wood', 'bear', 'recycle', 'gutter', 'laundry'], dur: 130, every: [3, 5.5], max: 4, deadline: 18 }
 ];
 const FY = 14;                                       // la facciata parte sotto la barra in alto
 const fs_ = () => W / FACADE.w;                      // scala facciata -> schermo
@@ -259,6 +260,7 @@ function miniIcon(id, x, y) {
   else if (id == 'bear') { ell('#5a3a22', x - 1, y + 1, 4, 3); ell('#5a3a22', x + 3, y - 1, 2, 2); }
   else if (id == 'recycle') RBINS.forEach((b, i) => g.rect(b.c, x - 4 + i * 2, y - 2, 2, 5));
   else if (id == 'gutter') { g.rect('#8a6440', x - 4, y, 9, 2); g.rect('#c87a2a', x - 3, y - 1, 2, 1); g.rect('#d8a030', x + 1, y - 1, 2, 1); g.rect('#6aaaf0', x, y + 3, 1, 2); }
+  else if (id == 'laundry') { g.rect('#f4f4f4', x - 4, y - 3, 9, 1); g.rect('#d04040', x - 3, y - 2, 3, 4); g.rect('#3a6ad0', x + 1, y - 2, 3, 5); }
   else if (id == 'snow') { g.rect('#ffffff', x - 3, y, 7, 1); g.rect('#ffffff', x, y - 3, 1, 7); g.rect('#c8d4e4', x - 2, y - 2, 1, 1); g.rect('#c8d4e4', x + 2, y + 2, 1, 1); }
   else { ell('#6a6a74', x, y, 4, 2); ell('#c8c8d0', x - 1, y - 1, 3, 2); ell('#e8e8ee', x + 1, y - 1, 2, 1); }
 }
@@ -1554,6 +1556,92 @@ function makeGutter(opts = {}) {
   return m;
 }
 
+/* =================== MINIGIOCO 13: PANNI AL SOLE =================== */
+const LINES = [52, 98], SLOTS = 7, SLOT_X = i => 34 + i * 29;   // due stendini, 7 posti ciascuno
+const CLOTH = ['#d04040', '#3a6ad0', '#f5c518', '#3e8a4a', '#f4f4f4', '#c060c0'];
+function drawCloth(x, y, kind, col, wet) {                    // (x,y) = punto della molletta
+  const c = col;
+  if (kind == 0) { g.rect(c, x - 6, y, 12, 4); g.rect(c, x - 4, y + 4, 8, 8); }              // maglietta
+  else if (kind == 1) { g.rect(c, x - 4, y, 8, 4); g.rect(c, x - 4, y + 4, 3, 9); g.rect(c, x + 1, y + 4, 3, 9); }   // pantaloni
+  else if (kind == 2) { g.rect(c, x - 5, y, 10, 12); g.rect('#ffffff60', x - 5, y + 9, 10, 1); }                   // asciugamano
+  else { g.rect(c, x - 4, y, 3, 7); g.rect(c, x - 4, y + 6, 5, 2); g.rect(c, x + 2, y, 3, 7); g.rect(c, x + 2, y + 6, 4, 2); }   // calzini
+  g.rect('#8a5a2e', x - 1, y - 2, 2, 3);                                                       // molletta
+  if (wet > .3) for (let k = 0; k < 3; k++) g.rect('#6aaaf0', x - 3 + k * 3, y + 13 + ((performance.now() / 90 + k * 4) | 0) % 5, 1, 2);
+}
+function drawBalconies() {
+  g.rect('#9ec6e6', 0, 0, W, H);
+  g.rect('#e0b24f', 0, 20, W, H - 20);
+  LINES.forEach(y => {
+    g.rect('#5a3a22', 14, y - 8, 2, 30); g.rect('#5a3a22', W - 16, y - 8, 2, 30);           // pali dello stendino
+    g.rect('#f4f4f4', 15, y - 2, W - 30, 1);
+    g.rect('#7a5230', 6, y + 22, W - 12, 3); for (let x = 8; x < W - 8; x += 4) g.rect('#9c6e42', x, y + 14, 1, 8);  // ringhiera
+  });
+  [[40, 30], [120, 32], [200, 30]].forEach(([x, y]) => { g.rect('#f4f1e8', x - 7, y - 10, 15, 14); g.rect('#a9cbe0', x - 6, y - 9, 13, 12); g.rect('#b5332e', x - 10, y - 10, 3, 14); g.rect('#b5332e', x + 8, y - 10, 3, 14); });
+}
+
+function makeLaundry(opts = {}) {
+  const m = { t: 0, dur: opts.arcade ? 30 : 45, success: false, score: 0, dry: 0, soaked: 0,
+    slots: [], cloud: null, nextCloud: 3, nextHang: .2, fx: [], over: false, reason: '' };
+  for (let l = 0; l < 2; l++) for (let i = 0; i < SLOTS; i++) m.slots.push({ l, i, item: null });
+  const say = (x, y, s, c) => m.fx.push({ x, y, s, c, t: 0 });
+  const raining = x => m.cloud && Math.abs(x - m.cloud.x) < 30;
+  m.update = dt => {
+    m.fx.forEach(f => f.t += dt); m.fx = m.fx.filter(f => f.t < 1);
+    if (m.over) return;
+    m.t += dt;
+    // le signore stendono i panni negli spazi liberi
+    if ((m.nextHang -= dt) <= 0) {
+      const free = m.slots.filter(s => !s.item);
+      if (free.length) pick(free).item = { kind: Math.random() * 4 | 0, col: pick(CLOTH), dry: 0, wet: 0 };
+      m.nextHang = rnd(.6, 1.2);
+    }
+    // nuvole con la pioggia da sinistra
+    if (!m.cloud && (m.nextCloud -= dt) <= 0) m.cloud = { x: -50, v: 26 + m.t * .5 };
+    if (m.cloud) { m.cloud.x += m.cloud.v * dt; if (m.cloud.x > W + 50) { m.cloud = null; m.nextCloud = rnd(2, 4); } }
+    m.slots.forEach(s => {
+      const it = s.item; if (!it) return;
+      const x = SLOT_X(s.i);
+      if (raining(x)) { it.wet += dt * .9; it.dry = Math.max(0, it.dry - dt * .5); }
+      else { it.dry = Math.min(1, it.dry + dt / 5); it.wet = Math.max(0, it.wet - dt * .3); }
+      if (it.wet >= 1) { s.item = null; m.soaked++; m.score = Math.max(0, m.score - 5); say(x, LINES[s.l] - 6, L('Fradicio! -5', 'Soaked! -5'), C.r); }
+    });
+    if (!opts.arcade && m.soaked >= 6) { m.over = true; m.reason = L('Tutto bagnato!', 'All soaked!'); }
+    else if (m.t >= m.dur) {
+      m.over = true; m.success = m.soaked <= 1 && m.dry >= 4;
+      m.reason = opts.arcade && m.success ? L('Bucato salvo!', 'Laundry saved!') : L('Tempo scaduto!', "Time's up!");
+    }
+  };
+  m.click = (x, y) => {
+    const s = m.slots.find(s => s.item && Math.abs(x - SLOT_X(s.i)) < 8 && y > LINES[s.l] - 4 && y < LINES[s.l] + 16);
+    if (!s) return;
+    const it = s.item; s.item = null;
+    if (it.dry >= 1) { m.dry++; m.score += 10; say(SLOT_X(s.i), LINES[s.l] - 6, '+10', C.g); }
+    else { m.score += 2; say(SLOT_X(s.i), LINES[s.l] - 6, L('Umido +2', 'Damp +2'), C.y); }
+  };
+  m.draw = () => {
+    drawBalconies();
+    if (m.cloud) {
+      const cx = m.cloud.x;
+      ell('#5a6474', cx, 14, 34, 9); ell('#7a8898', cx - 8, 10, 20, 6);
+      g.rect('#00000020', cx - 30, 22, 60, H - 22);
+      for (let k = 0; k < 30; k++) g.rect('#9fc8f0', cx - 30 + (k * 13) % 60, 24 + ((k * 29 + m.t * 160) % (H - 24)), 1, 3);
+    } else text(L('Nuvola in arrivo...', 'Cloud coming...'), 4, 14, '#3a5a94');
+    m.slots.forEach(s => {
+      const it = s.item; if (!it) return;
+      const x = SLOT_X(s.i), y = LINES[s.l];
+      drawCloth(x, y, it.kind, it.col, it.wet);
+      g.rect('#000000', x - 6, y + 16, 12, 2); g.rect(it.dry >= 1 ? C.g : C.y, x - 6, y + 16, 12 * it.dry, 2);   // asciugatura
+    });
+    m.fx.forEach(f => text(f.s, f.x - F.width(f.s) / 2, f.y - f.t * 10, f.c));
+    g.rect('#0d0f24d0', 0, 0, W, 10);
+    text(L('Punti ', 'Score ') + m.score, 3, 3, C.ink);
+    text(L('Asciutti ', 'Dry ') + m.dry, 64, 3, C.g); text(L('Fradici ', 'Soaked ') + m.soaked, 132, 3, m.soaked ? C.r : C.dim);
+    const left = Math.max(0, Math.ceil(m.dur - m.t)) + 's';
+    text(left, 236 - F.width(left), 3, m.dur - m.t <= 10 ? C.r : C.dim);
+  };
+  return m;
+}
+
 /* =================== ELENCO MINIGIOCHI =================== */
 const GAMES = [
   { id: 'leak',
@@ -1642,7 +1730,15 @@ const GAMES = [
       "The wind has filled the gutters with leaves and a big storm is coming. If a gutter is clogged the water overflows into the attic! Click or drag along the gutter to clear the leaves before the rain gets heavy."),
     tip: a => a ? L('30 secondi: danni sotto il 50%', '30 seconds: keep damage under 50%') : L('45 secondi: clicca o trascina sulla grondaia', '45 seconds: click or drag on the gutter'),
     drawBg: () => drawRoof(null, 0, 0), create: makeGutter,
-    icon: (cx, cy) => { g.rect('#8a6440', cx - 10, cy, 20, 4); LEAF.forEach((c, i) => g.rect(c, cx - 8 + i * 5, cy - 2, 3, 2)); g.rect('#6aaaf0', cx - 2, cy + 5, 1, 4); g.rect('#6aaaf0', cx + 4, cy + 6, 1, 3); } }
+    icon: (cx, cy) => { g.rect('#8a6440', cx - 10, cy, 20, 4); LEAF.forEach((c, i) => g.rect(c, cx - 8 + i * 5, cy - 2, 3, 2)); g.rect('#6aaaf0', cx - 2, cy + 5, 1, 4); g.rect('#6aaaf0', cx + 4, cy + 6, 1, 3); } },
+  { id: 'laundry',
+    title: () => L('Panni al sole', 'Laundry rush'),
+    ring: () => L('Piove sul bucato!', 'Rain on the washing!'),
+    intro: () => L("Le signore hanno steso il bucato sui terrazzi, ma da sinistra arrivano nuvole cariche di pioggia. I panni devono stare al sole per asciugarsi: raccoglili quando la barra e' verde (+10). Prima della nuvola raccogli anche quelli umidi, altrimenti si inzuppano!",
+      "The ladies have hung their washing on the balconies, but rain clouds are coming from the left. Clothes need sun to dry: collect them when the bar is green (+10). Before the cloud arrives, take in the damp ones too, or they get soaked!"),
+    tip: a => a ? L('30 secondi: almeno 4 asciutti e max 1 fradicio', '30 seconds: 4 dry, 1 soaked max') : L('45 secondi: clicca sui panni per raccoglierli', '45 seconds: click the clothes to take them in'),
+    drawBg: drawBalconies, create: makeLaundry,
+    icon: (cx, cy) => { g.rect('#f4f4f4', cx - 10, cy - 6, 20, 1); drawCloth(cx - 5, cy - 4, 0, '#d04040', 0); drawCloth(cx + 6, cy - 4, 2, '#3a6ad0', 0); } }
 ];
 
 /* --- avvio --- */
