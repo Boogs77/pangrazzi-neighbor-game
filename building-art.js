@@ -239,13 +239,14 @@ function shopDoor(g, x, y) {
   g.rect(P.geran, x + 10, y + 21, 2, 2); g.rect(P.leaf, x + 10, y + 23, 2, 2);
 }
 
+// ingresso con tettoia: corpo in muratura largo 21, porta da 13 al centro
 function porch(g, x, y) {
-  g.rect(P.stoneDark, x + 3, y + 4, 17, 16);
-  g.rect(P.brown, x + 5, y + 5, 13, 15);
-  g.rect(P.glass, x + 7, y + 7, 4, 6); g.rect(P.glass, x + 13, y + 7, 4, 6);
-  g.rect(P.brownDark, x + 11, y + 5, 1, 15);
-  g.rect(P.roof, x, y, 23, 2); g.rect(P.brownDark, x + 1, y + 2, 21, 2);
-  g.rect('#f0e0a0', x + 11, y + 4, 1, 1);
+  g.rect(P.stoneDark, x + 3, y + 4, 21, 16);
+  g.rect(P.brown, x + 7, y + 5, 13, 15);
+  g.rect(P.glass, x + 9, y + 7, 4, 6); g.rect(P.glass, x + 15, y + 7, 4, 6);
+  g.rect(P.brownDark, x + 13, y + 5, 1, 15);
+  g.rect(P.roof, x, y, 27, 2); g.rect(P.brownDark, x + 1, y + 2, 25, 2);
+  g.rect('#f0e0a0', x + 13, y + 4, 1, 1);
 }
 
 function doubleDoor(g, x, y) {
@@ -256,6 +257,22 @@ function doubleDoor(g, x, y) {
   g.rect('#c8a050', x + 5, y + 9, 1, 1);
 }
 
+function singleDoor(g, x, y) {
+  g.rect(P.stoneDark, x, y, 8, 10);
+  g.rect(P.brown, x + 1, y + 1, 6, 9);
+  for (let k = y + 3; k < y + 10; k += 3) g.rect(P.brownDark, x + 2, k, 4, 1);
+  g.rect('#c8a050', x + 5, y + 5, 1, 1);
+}
+
+// terrazzo in legno visto di lato, attaccato al muro sul lato destro del disegno
+function sideBalcony(g, x, y) {
+  g.rect(P.brownDark, x, y + 8, 12, 2);                      // pavimento
+  g.rect(P.wood, x, y, 12, 1); g.rect(P.wood, x, y + 4, 12, 1); // corrimano
+  for (let k = 0; k < 12; k += 2) g.rect(P.woodLight, x + k, y + 1, 1, 7);
+  g.rect(P.brownDark, x + 8, y + 10, 4, 1); g.rect(P.brownDark, x + 10, y + 11, 2, 1); // mensola
+  g.rect(P.geran, x + 1, y - 1, 2, 1); g.rect(P.leaf, x + 3, y - 1, 2, 1); g.rect(P.geran, x + 5, y - 1, 2, 1);
+}
+
 /* legenda: una lettera per ogni tipo di finestra/porta (vedi GAME_DESIGN.md) */
 const TYPES = {
   A: { it: 'Scuri rossi aperti', w: 16, h: 13, draw: (g, x, y) => shutters(g, [x + 3, y, 10, 13], 'red', true) },
@@ -264,13 +281,15 @@ const TYPES = {
   D: { it: 'Scuri viola aperti', w: 16, h: 13, draw: (g, x, y) => shutters(g, [x + 3, y, 10, 13], 'mauve', true) },
   E: { it: 'Inferriata, scuri marroni, gerani', w: 16, h: 13, draw: (g, x, y) => grateWindow(g, x + 3, y) },
   F: { it: 'Grande con inferriata', w: 11, h: 16, draw: (g, x, y) => grate(g, x, y, 11, 16) },
-  G: { it: 'Piccola con rastrelliera', w: 9, h: 13, draw: (g, x, y) => { plain(g, x + 1, y + 1, 6, 8); rack(g, x - 1, y + 9, 11); } },
+  G: { it: 'Piccola con rastrelliera', w: 11, h: 14, draw: (g, x, y) => { plain(g, x + 1, y + 1, 8, 9); rack(g, x - 1, y + 10, 13); } },
   H: { it: 'Finestrella bassa', w: 10, h: 8, draw: lowWindow },
   K: { it: 'Abbaino mansarda', w: 12, h: 10, draw: (g, x, y) => dormer(g, x + 2, y + 3, 8, 7) },
+  L: { it: 'Terrazzo laterale', w: 12, h: 12, draw: sideBalcony },
   P: { it: 'Portone ad arco', w: 18, h: 21, draw: archDoor },
   Q: { it: 'Negozio Souvenirs', w: 42, h: 25, draw: shopDoor },
-  R: { it: 'Ingresso con tettoia', w: 23, h: 20, draw: porch },
-  T: { it: 'Porta a due ante', w: 12, h: 18, draw: doubleDoor }
+  R: { it: 'Ingresso con tettoia', w: 27, h: 20, draw: porch },
+  T: { it: 'Porta a due ante', w: 12, h: 18, draw: doubleDoor },
+  U: { it: 'Porta singola', w: 8, h: 10, draw: singleDoor }
 };
 
 function street(g) {
@@ -294,6 +313,6 @@ function street(g) {
 
 function draw(g, look) { background(g); building(g, look); street(g); }
 
-const api = { W, H, P, APTS, LOOK, FONT, TYPES, text, draw, background, building, street };
+const api = { W, H, P, APTS, LOOK, FONT, TYPES, text, rack, draw, background, building, street };
 if (typeof module != 'undefined') module.exports = api; else root.BuildingArt = api;
 })(this);

@@ -52,6 +52,51 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 - Retro (`02`): vicolo lastricato, ingresso secondario con tettoia, staccionata in legno, muro in pietra, bosco ripido.
 - Sfondo: montagne con **abeti**, cielo nuvoloso; in fondo alla via edificio rosa/salmone (Terme).
 
+### Facciata v3 — fonte unica: `reference/edificio.md` ✅
+
+`node tools/render-blocks.js` legge `reference/edificio.md` e genera:
+- `reference/edificio.png` — facciata completa
+- `reference/edificio-appartamenti.png` — stessa facciata con gli appartamenti colorati e numerati
+
+(La "Proposta v2" più sotto e `building-art.js → draw()` sono superate; `building-art.js` resta la libreria dei tipi di finestra/porta.)
+
+**Struttura (da sinistra)**
+- **Blocco 1** (testata): 3 file (ps, pp, pt) × 7 colonne; terrazzi laterali L a sinistra (ps, pp); marcapiano sopra il pt; pt = F + 6 finestrelle G con rastrelliera + 2 A; ingresso esterno R rialzato con 3 gradini, appoggiato al muro; nello zoccolo finestrella H + porticina U.
+- **Blocco centrale**: 3° piano, ps, pp + piano terra basso con 3 finestrelle H e portone ad arco P.
+- **Blocco 3**: 3° piano, ps, pp + piano terra basso con G G Q(negozio Souvenirs) G; terrazzo laterale L a destra al 3° piano.
+- **Mansarda** unica sui blocchi centrale e 3, con 5 abbaini K equidistanti (l'ultimo spostato di mezza colonna a sinistra).
+- **Pendenza**: la strada scende dallo spigolo basso sinistro del blocco 1 fino al portone P, poi è piana. Il pt del blocco 1 è alla quota del pp degli altri blocchi.
+
+**Regole del formato** (oltre alla legenda sotto)
+- Ogni carattere = una colonna (6 px); passo finestre = 4 caratteri.
+- `>` / `<` subito dopo una lettera = mezza colonna a destra / sinistra.
+- Righe: `MS:` mansarda · `zc:` zoccolo · `ap:` appartamenti della riga sopra (stessa colonna della finestra; `1`–`9`, poi `a`=10, `b`=11 … `h`=17).
+- Un piano terra con P/Q/T è "basso" (alto quanto la porta); F scende fino allo zoccolo; L si attacca al muro dal lato in cui è scritto.
+
+**Appartamenti (17)** — vedi `edificio-appartamenti.png`
+| Int. | Dove | Composizione |
+|---|---|---|
+| 1 | B1 pt | F + 6 finestrelle G |
+| 2 | B1 pp | terrazzo L + 3 finestre |
+| 3 | B1 pp | 3 finestre |
+| 4 | B1 ps | terrazzo L + 3 finestre |
+| 5 | B1 ps | 3 finestre |
+| 6 | B1 pt + Bc pp | 2 + 3 finestre (esclusa quella sopra il portone) |
+| 7 | B3 pp | 4 finestre |
+| 8 | B1 pp + Bc ps | 1 + 2 finestre |
+| 9 | Bc ps + B3 ps | 2 + 1 finestre |
+| 10 | B3 ps | 3 finestre |
+| 11 | B1 ps + Bc 3° | 1 + 1 finestre |
+| 12 | Bc 3° | 2 finestre |
+| 13 | Bc 3° + B3 3° | 1 + 4 finestre |
+| 14 | mansarda | 1° abbaino |
+| 15 | mansarda | 2° e 3° abbaino |
+| 16 | mansarda | 4° e 5° abbaino |
+| 17 | B3 3° | solo il terrazzo laterale destro |
+
+❓ **Da assegnare**: finestra sopra il portone (Bc pp); piano terra del blocco 3 (G G Q G); il negozio Q è un appartamento?
+❓ Le finestrelle G accanto al negozio (blocco 3) sono davvero G o E (inferriata + gerani)?
+
 *Legenda finestre e porte* — `reference/legenda.png`
 
 | Lettera | Tipo | Dove si vede |
@@ -65,12 +110,15 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 | **G** | Finestra **piccola con tenda** e rastrelliera in legno | testata, fila bassa |
 | **H** | **Finestrella bassa** con scuri marroni | piano terra |
 | **K** | **Abbaino** della mansarda | tetto |
+| **L** | **Terrazzo in legno visto di lato**, sporge dal muro dalla parte in cui è scritto | fianco sinistro del primo blocco |
 | **P** | **Portone ad arco** in pietra | ingresso condominio |
 | **Q** | **Negozio Souvenirs** (porta + insegna) | piano terra |
 | **R** | **Ingresso esterno con tettoia** | testata |
 | **T** | **Porta in legno a due ante** | piano terra |
+| **U** | **Porta singola** piccola e bassa | zoccolo, tra le finestrelle vicino al portone |
 
-Simboli: `|` = pluviale · `-` = muro senza aperture
+Simboli: `|` = pluviale · `-` = muro senza aperture · `>` / `<` dopo una lettera = mezza colonna a destra / sinistra
+Righe speciali: `MS:` = mansarda (abbaini nel tetto, equidistanti tra primo e ultimo) · `zc:` = finestre/porte nello zoccolo
 
 *Formato delle liste*: un blocco alla volta, una riga per piano dall'alto, lettere da sinistra a destra. Esempio = disegno attuale v2:
 
@@ -230,7 +278,9 @@ Categorie: 🔧 riparazione · 📋 burocrazia · 🧑‍🤝‍🧑 condomini �
 
 1. [x] Fornire l'indirizzo del condominio reale.
 1b. [x] Foto della facciata (salvate in `reference/`).
-1c. [ ] Confermare numero di appartamenti e layout semplificato della facciata.
+1c. [x] Facciata v3 disegnata da `reference/edificio.md` (3 blocchi, pendenza, mansarda).
+1d. [ ] Finire la divisione in appartamenti (finestra sopra il portone, piano terra blocco 3).
+1e. [ ] Portare la facciata v3 nel gioco (finestre cliccabili per appartamento).
 2. [ ] Scegliere gli amministratori (sezione 5) e i minigiochi (sezione 6).
 3. [ ] Rispondere alle decisioni aperte (sezione 3).
 4. [ ] Scrivere il concept in una frase e definire chi è Pangrazzi.
