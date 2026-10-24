@@ -95,7 +95,7 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 | 17 | B3 3° | solo il terrazzo laterale destro |
 | 18 | B3 pt | ⭐ **NEGOZIO Souvenirs**: 3 finestrelle G + porta Q (in evidenza nell'immagine) |
 | 19 | zoccolo B1 + pt Bc | 🔧 **CANTINA** (spazio comune): 2 finestrelle H + porticina U — speciale, intervengono tutti (bordo tratteggiato) |
-| 20 | pt Bc | 🔧 **CANTINA** (spazio comune): 2 finestrelle H + porticina U — speciale, intervengono tutti (bordo tratteggiato) |
+| 20 | pt Bc | 🔧 **CANTINA** (spazio comune): 2 finestrelle H, senza porta — speciale, intervengono tutti (bordo tratteggiato) |
 | 21 | Bc pp + pt | 🏛️ **PARTE COMUNE**: portone P + finestra sopra (androne/scale) — non è di nessuno ma è oggetto del gioco (bordo tratteggiato) |
 
 ✅ Tutte le finestre e porte sono assegnate. Speciali: 18 negozio (bordo doppio), 19–20 cantine e 21 parte comune (bordo tratteggiato).
