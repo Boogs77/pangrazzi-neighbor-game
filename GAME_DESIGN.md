@@ -227,13 +227,9 @@ piano terra:  R
 
 ## 5. Amministratori giocabili ✅ (5)
 
-Schermata di scelta:  …  (rigenera con scritto C:UsersMarcoDocumentsClaudePangrazziGameeferenceadmin-1.png
-scritto C:UsersMarcoDocumentsClaudePangrazziGameeferenceadmin-2.png
-scritto C:UsersMarcoDocumentsClaudePangrazziGameeferenceadmin-3.png
-scritto C:UsersMarcoDocumentsClaudePangrazziGameeferenceadmin-4.png
-scritto C:UsersMarcoDocumentsClaudePangrazziGameeferenceadmin-5.png).
-Sprite alti ~100 px (3/4 dello schermo 240×135) a sinistra; a destra nome, descrizione, bonus, malus,  e tasto SCEGLI.
-Codice:  (sprite + schede),  (carattere 3×5 completo).
+Schermata di scelta: `reference/admin-1.png` … `admin-5.png` (rigenera con `node tools/render-admins.js`).
+Sprite alti ~100 px (3/4 dello schermo 240×135) a sinistra; a destra nome, descrizione, bonus, malus, `< n/5 >` e tasto SCEGLI.
+Codice: `admins-art.js` (sprite + schede), `pixel-font.js` (carattere 3×5 completo).
 
 | # | Aspetto (deciso) | Nome (bozza) | Bonus (bozza) | Malus (bozza) |
 |---|---|---|---|---|
