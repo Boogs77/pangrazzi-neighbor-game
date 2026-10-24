@@ -97,7 +97,7 @@ function fitName() { if (nameBox) nameInput.style.fontSize = Math.max(10, wrap.c
 addEventListener('resize', fitName);
 
 const bg = new Image();
-bg.src = 'reference/edificio.png?v=202610241621';
+bg.src = 'reference/edificio.png?v=202610241623';
 
 /* --- testi inglesi degli amministratori (gli italiani sono in admins-art.js) --- */
 const ADMIN_EN = [
@@ -434,7 +434,7 @@ const End = {
   },
   submit() {
     if (this.saved >= 0) return;
-    const n = (nameInput.value.trim() || '???').toUpperCase().slice(0, 10);
+    const n = (nameInput.value.trim() || 'BOOGS')   // nome vuoto: BOOGS.toUpperCase().slice(0, 10);
     store.set('lastName', n);
     this.saved = addRecord(this.gm.id, n, this.score);
     hideName();
