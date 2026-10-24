@@ -95,7 +95,7 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 | 17 | B3 3° | solo il terrazzo laterale destro |
 | 18 | B3 pt | ⭐ **NEGOZIO Souvenirs**: 3 finestrelle G + porta Q (in evidenza nell'immagine) |
 | 19 | zoccolo B1 | 🔧 **CANTINA** (spazio comune): finestrella H + porticina U — speciale, intervengono tutti (bordo tratteggiato) |
-| 20 | pt Bc | 🔧 **CANTINA** (spazio comune): 3 finestrelle H — speciale, intervengono tutti (bordo tratteggiato) |
+| 20 | pt Bc | 🔧 **CANTINA** (spazio comune): 3 finestrelle H + porticina U — speciale, intervengono tutti (bordo tratteggiato) |
 
 ❓ **Da assegnare**: solo la finestra sopra il portone (Bc pp).
 ❓ Le finestrelle G accanto al negozio (blocco 3) sono davvero G o E (inferriata + gerani)?
