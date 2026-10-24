@@ -97,7 +97,7 @@ function fitName() { if (nameBox) nameInput.style.fontSize = Math.max(10, wrap.c
 addEventListener('resize', fitName);
 
 const bg = new Image();
-bg.src = 'reference/edificio.png?v=202610241619';
+bg.src = 'reference/edificio.png?v=202610241621';
 
 /* --- testi inglesi degli amministratori (gli italiani sono in admins-art.js) --- */
 const ADMIN_EN = [
@@ -498,7 +498,7 @@ function drawRoom() {
 
 function makeLeak(opts = {}) {
   const admin = adminIndex(), HEAD = FLOOR - 100 + 4;
-  const m = { t: 0, dur: opts.arcade ? 30 : Infinity, success: false, score: 0, closed: 0, level: 0, next: 1, drops: [], fx: [], over: false, reason: '',
+  const m = { t: 0, dur: opts.arcade ? 30 : 45, success: false, score: 0, closed: 0, level: 0, next: 1, drops: [], fx: [], over: false, reason: '',
     leaks: LEAK_PTS.map(([x, y]) => ({ x, y, on: false })) };
   m.update = dt => {
     m.fx.forEach(f => f.t += dt); m.fx = m.fx.filter(f => f.t < .8);
@@ -782,7 +782,7 @@ function drawRooms(smoke) {
 }
 
 function makeSmoke(opts = {}) {
-  const m = { t: 0, dur: opts.arcade ? 30 : Infinity, success: false, score: 0, smoke: [10, 10, 10], rate: [3, 3, 3],
+  const m = { t: 0, dur: opts.arcade ? 30 : 45, success: false, score: 0, smoke: [10, 10, 10], rate: [3, 3, 3],
     removed: 0, fan: null, next: 1.5, over: false, reason: '' };
   const room = x => ROOMS.findIndex(x0 => x >= x0 && x < x0 + RW);
   function blow(x, y, amount) {
@@ -878,7 +878,7 @@ function makeGas(opts = {}) {
     if (f == 3 && side == 1) continue;                                   // a destra del piano terra c'è l'androne
     apts.push({ f, side, x: side ? 128 : 20, w: side ? 74 : 82, st: 'ok', left: 0, total: 1 });
   }
-  const m = { apts, t: 0, dur: opts.arcade ? 35 : Infinity, success: false, score: 0, lives: 3, delivered: 0,
+  const m = { apts, t: 0, dur: opts.arcade ? 35 : 45, success: false, score: 0, lives: 3, delivered: 0,
     cart: { f: 3, target: null }, load: [], next: 1.2, fx: [], over: false, reason: '' };
   const say = (x, y, s, c) => m.fx.push({ x, y, s, c, t: 0 });
   function arrive(tg) {
@@ -1074,7 +1074,7 @@ const GAMES = [
     ring: () => L('Driiin!', 'Riiing!'),
     intro: () => L("La signora del primo piano è al telefono: 'Amministratore, piove in salotto!'. I tubi perdono da tutte le parti, l'acqua sale. Clicca sulle perdite rosse per chiuderle prima che l'acqua ti arrivi sopra la testa!",
       "The lady on the first floor is on the phone: 'Administrator, it's raining in my living room!'. The pipes are leaking everywhere, the water is rising. Click the red leaks to shut them before the water goes over your head!"),
-    tip: a => a ? L('Resisti 30 secondi chiudendo le perdite', 'Hold on for 30 seconds by shutting the leaks') : L('Clicca sulle perdite che lampeggiano', 'Click the flashing leaks'),
+    tip: a => a ? L('Resisti 30 secondi chiudendo le perdite', 'Hold on for 30 seconds by shutting the leaks') : L('45 secondi: clicca sulle perdite che lampeggiano', '45 seconds: click the flashing leaks'),
     drawBg: drawRoom, create: makeLeak, icon: iconDrop },
   { id: 'mush',
     title: () => L('Raccolta funghi', 'Mushroom hunt'),
@@ -1097,7 +1097,7 @@ const GAMES = [
     ring: () => L('Coff coff!', 'Cough cough!'),
     intro: () => L("Si sono accesi tutti i caminetti insieme e il fumo invade gli appartamenti. Sventola come un matto: clicca o trascina dentro le stanze per spingere il fumo fuori dalla finestra, prima che una casa si riempia del tutto!",
       "All the fireplaces were lit at once and smoke is filling the flats. Fan like crazy: click or drag inside the rooms to push the smoke out of the window, before a home fills up completely!"),
-    tip: a => a ? L('Resisti 30 secondi senza far riempire le stanze', 'Hold on 30 seconds without letting a room fill up') : L('Clicca o trascina nelle stanze per sventolare', 'Click or drag in the rooms to fan'),
+    tip: a => a ? L('Resisti 30 secondi senza far riempire le stanze', 'Hold on 30 seconds without letting a room fill up') : L('45 secondi: clicca o trascina nelle stanze', '45 seconds: click or drag in the rooms'),
     drawBg: () => drawRooms(null), create: makeSmoke,
     icon: (cx, cy) => { ell('#6a6a74', cx, cy + 2, 10, 6); ell('#a8a8b0', cx - 2, cy, 8, 5); ell('#d8d8e0', cx + 2, cy - 2, 5, 3); } },
   { id: 'gas',
@@ -1105,7 +1105,7 @@ const GAMES = [
     ring: () => L('Senza gas!', 'Out of gas!'),
     intro: () => L("Niente gas, niente polenta! Gli appartamenti lasciano fuori dalla porta le bombole vuote. Clicca su un appartamento per mandarci il carrello, porta le vuote al furgone del gas giu in strada e riporta su quelle piene prima che scada il tempo.",
       "No gas, no polenta! The flats leave their empty gas bottles outside the door. Click a flat to send the cart there, take the empties to the gas van down in the street and bring the full ones back up before time runs out."),
-    tip: a => a ? L('35 secondi: consegna almeno 3 bombole', '35 seconds: deliver at least 3 bottles') : L('Carrello: massimo 2 bombole. 3 vite', 'Cart: 2 bottles max. 3 lives'),
+    tip: a => a ? L('35 secondi: consegna almeno 3 bombole', '35 seconds: deliver at least 3 bottles') : L('45 secondi, 3 vite, carrello da 2 bombole', '45 seconds, 3 lives, cart holds 2 bottles'),
     drawBg: drawSection, create: makeGas,
     icon: (cx, cy) => { drawBombola(cx - 4, cy + 9, true); drawBombola(cx + 4, cy + 9, false); } },
   { id: 'snow',
