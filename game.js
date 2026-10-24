@@ -52,13 +52,19 @@ function button(x, y, w, h, label, fn, col = C.y, tc = '#000000') {
 function go(s, ...args) { hideName(); scene = s; s.enter && s.enter(...args); }
 function setLang(l) { lang = l; store.set('lang', l); document.documentElement.lang = l; }
 
+const pos = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height]; };
 cv.addEventListener('pointerdown', e => {
-  const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) * W / r.width, y = (e.clientY - r.top) * H / r.height;
+  const [x, y] = pos(e);
   for (let i = btns.length - 1; i >= 0; i--) {
     const b = btns[i];
     if (x >= b.x && x < b.x + b.w && y >= b.y && y < b.y + b.h) { b.fn(); return; }
   }
   scene.click && scene.click(x, y);
+});
+// trascinamento (tasto premuto o dito sullo schermo), usato per sventolare
+cv.addEventListener('pointermove', e => {
+  if (e.pointerType == 'mouse' && !(e.buttons & 1)) return;
+  scene.move && scene.move(...pos(e));
 });
 addEventListener('keydown', e => {
   if (e.target == nameInput) { if (e.key == 'Enter' && scene.submit) scene.submit(); return; }
@@ -157,16 +163,18 @@ const Menu = {
     center(L('Minigiochi', 'Minigames'), 4, C.y);
     g.rect(C.y, 0, 12, W, 1);
     text(L('Amministratore: ', 'Administrator: ') + adminText(store.get('admin', 0)).name, 6, 16, C.dim);
+    // schede 2 per riga
     GAMES.forEach((gm, k) => {
-      const x = 8 + k * 116, y = 26, w = 108, h = 78;
+      const x = 8 + (k % 2) * 116, y = 25 + (k >> 1) * 44, w = 108, h = 40;
       panel(x, y, w, h);
-      gm.icon(x + w / 2, y + 30);
-      center(gm.title(), y + 44, C.y, 1, x, w);
+      gm.icon(x + 14, y + 22);
+      text(gm.title(), x + 30, y + 5, C.y);
       const best = records(gm.id)[0];
-      center(best ? L('Record: ', 'Best: ') + best.name + ' ' + best.score : L('Nessun record', 'No record yet'), y + 54, C.dim, 1, x, w);
-      button(x + 24, y + 63, 60, 11, L('Gioca', 'Play'), () => go(Intro, gm));
+      text(best ? L('Rec. ', 'Best ') + best.name.slice(0, 7) + ' ' + best.score : L('Nessun record', 'No record yet'), x + 30, y + 14, C.dim);
+      button(x + 30, y + 25, 50, 11, L('Gioca', 'Play'), () => go(Intro, gm));
     });
-    center(L('Altri 11 minigiochi in arrivo...', '11 more minigames coming soon...'), 108, C.dim);
+    const more = 13 - GAMES.length;
+    center(L('Altri ' + more + ' minigiochi in arrivo...', more + ' more minigames coming soon...'), 112, C.dim);
     button(8, 119, 112, 12, L('Cambia amministratore', 'Change administrator'), () => go(Choose), C.pan, C.ink);
     button(180, 119, 52, 12, L('Indietro', 'Back'), () => go(Mode), C.pan, C.ink);
   },
@@ -203,7 +211,10 @@ const Mode = {
 
 /* =================== ARCADE: IL CONDOMINIO E I SUOI PROBLEMI =================== */
 // ogni turno aggiunge 2 minigiochi; per ora esiste solo il primo
-const TURNS = [{ games: ['leak', 'mush'], dur: 75, every: [6, 10], max: 2, deadline: 25 }];
+const TURNS = [
+  { games: ['leak', 'mush'], dur: 75, every: [6, 10], max: 2, deadline: 25 },
+  { games: ['leak', 'mush', 'mouse', 'smoke'], dur: 90, every: [5, 8], max: 3, deadline: 22 }
+];
 const FY = 14;                                       // la facciata parte sotto la barra in alto
 const fs_ = () => W / FACADE.w;                      // scala facciata -> schermo
 let run = null;
@@ -222,7 +233,9 @@ function drawFacade() {
 }
 function miniIcon(id, x, y) {
   if (id == 'leak') { ell('#1a1420', x, y + 1, 3, 3); ell('#4fa8ff', x, y + 1, 2, 2); g.rect('#4fa8ff', x, y - 3, 1, 2); }
-  else drawMush('p', x, y + 3, .4);
+  else if (id == 'mush') drawMush('p', x, y + 3, .4);
+  else if (id == 'mouse') drawMouse(x - 1, y + 3, .5);
+  else { ell('#6a6a74', x, y, 4, 2); ell('#c8c8d0', x - 1, y - 1, 3, 2); ell('#e8e8ee', x + 1, y - 1, 2, 1); }
 }
 const GAME = id => GAMES.find(gm => gm.id == id);
 const ARCADE = { id: 'arcade', title: () => 'Arcade', drawBg: drawFacade, restart: () => go(Arcade, true), back: () => go(Mode) };
@@ -336,11 +349,20 @@ const TurnEnd = {
       text(L('Bonus felicita', 'Happiness bonus'), 44, 46); text(String(this.bonus), 196 - F.width(String(this.bonus)), 46, C.g);
       g.rect(C.dim, 44, 55, 152, 1);
       text(L('Totale', 'Total'), 44, 59, C.y); text(String(run.score), 196 - F.width(String(run.score)), 59, C.y);
-      para(L('Il turno 2, con 4 minigiochi, arrivera presto!', 'Turn 2, with 4 minigames, is coming soon!'), 44, 76, 38, C.dim);
+      const nx = TURNS[run.turn + 1];
+      para(nx ? L('Prossimo turno: ' + nx.games.length + ' minigiochi, problemi piu frequenti.', 'Next turn: ' + nx.games.length + ' minigames, more frequent problems.')
+        : L('I turni successivi arriveranno presto!', 'More turns are coming soon!'), 44, 76, 38, C.dim);
     }
-    button(85, 116, 70, 12, L('Continua', 'Continue'), () => go(End, ARCADE, run.score));
+    button(85, 116, 70, 12, L('Continua', 'Continue'), () => this.next());
   },
-  key(k) { if (k == 'Enter' || k == ' ') go(End, ARCADE, run.score); }
+  // turno successivo se esiste, altrimenti fine partita con record
+  next() {
+    if (!this.evicted && TURNS[run.turn + 1]) {
+      Object.assign(run, { turn: run.turn + 1, t: 0, problems: [], next: 2, fx: [] });
+      go(Arcade);
+    } else go(End, ARCADE, run.score);
+  },
+  key(k) { if (k == 'Enter' || k == ' ') this.next(); }
 };
 
 /* =================== SPIEGAZIONE PRIMA DEL GIOCO =================== */
@@ -378,6 +400,7 @@ const Play = {
     if (this.m.over) { g.rect('#0d0f24c0', 0, 54, W, 24); center(this.m.reason, 60, C.y, 2); }
   },
   click(x, y) { if (!this.m.over) this.m.click(x, y); },
+  move(x, y) { if (!this.m.over && this.m.move) this.m.move(x, y); },
   key(k) { if (k == 'Escape') this.actx ? go(Arcade) : go(Menu); }
 };
 
@@ -614,6 +637,184 @@ function makeMush(opts = {}) {
   return m;
 }
 
+/* =================== MINIGIOCO 3: CACCIA AI TOPI =================== */
+function drawKitchen() {
+  g.rect('#dfe8e4', 0, 0, W, FLOOR);
+  for (let y = 0; y < 72; y += 8) {
+    g.rect('#c9d6d0', 0, y, W, 1);
+    for (let x = (y / 8 & 1) * 6; x < W; x += 12) g.rect('#c9d6d0', x, y, 1, 8);
+  }
+  // pensili
+  g.rect('#a8784a', 10, 14, 96, 26);
+  for (let x = 10; x < 106; x += 32) { g.rect('#8a5e36', x, 14, 1, 26); g.rect('#e0d0a8', x + 27, 25, 2, 4); }
+  // finestra
+  g.rect('#f4f1e8', 120, 14, 50, 36); g.rect('#a9cbe0', 123, 17, 44, 30); g.rect('#f4f1e8', 144, 17, 2, 30);
+  for (let x = 123; x < 167; x++) g.rect('#5d7a6a', x, 36 + Math.round(4 * Math.sin(x / 6)), 1, 11);
+  // frigorifero
+  g.rect('#9aa4a8', 195, 31, 36, FLOOR - 31); g.rect('#e8eef0', 196, 32, 34, FLOOR - 32);
+  g.rect('#c8d0d4', 196, 62, 34, 1); g.rect('#9aa4a8', 224, 40, 2, 14); g.rect('#9aa4a8', 224, 70, 2, 22);
+  // piano di lavoro, fornelli e mobili bassi
+  g.rect('#5a5a62', 6, 72, 150, 4); g.rect('#2a2a30', 112, 70, 28, 2);
+  g.rect('#b8875a', 8, 76, 146, 44);
+  for (let x = 8; x < 150; x += 36) { g.rect('#9a6e46', x, 76, 1, 44); g.rect('#e0d0a8', x + 30, 92, 2, 4); }
+  // battiscopa con le tane (archi scuri), poi il pavimento a scacchi che ne taglia la metà inferiore
+  g.rect('#9a7a52', 0, FLOOR - 4, W, 4);
+  MOUSE_HOLES.forEach(([x, y]) => { if (y == FLOOR) ell('#1a1210', x, y, 5, 7); });
+  g.rect('#a89070', 0, FLOOR, W, H - FLOOR);
+  for (let y = FLOOR; y < H; y += 5) for (let x = ((y - FLOOR) / 5 & 1) * 10; x < W; x += 20) g.rect('#c8b090', x, y, 10, 5);
+}
+// tane nel battiscopa, sul piano di lavoro e sopra il frigorifero
+const MOUSE_HOLES = [[22, FLOOR], [62, FLOOR], [102, FLOOR], [142, FLOOR], [178, FLOOR], [40, 72], [92, 72], [212, 31]];
+
+function drawMouse(x, y, k = 1, white = false, squash = 0) {
+  const O = '#1a1420', body = white ? '#f2f2f2' : '#8a8a94', hy = squash ? 1 - squash : 1;
+  g.rect('#c08a8a', x - 9 * k, y - 2 * k, 4 * k, 1); g.rect('#c08a8a', x - 11 * k, y - 3 * k, 2 * k, 1);   // coda
+  ell(O, x, y - 4 * k * hy, 6 * k + 1, 4 * k * hy + 1); ell(body, x, y - 4 * k * hy, 6 * k, 4 * k * hy);
+  ell(O, x + 5 * k, y - 6 * k * hy, 4 * k + 1, 3 * k * hy + 1); ell(body, x + 5 * k, y - 6 * k * hy, 4 * k, 3 * k * hy);
+  ell('#f0a0b0', x + 3 * k, y - 10 * k * hy, 2 * k, 2 * k); ell('#f0a0b0', x + 7 * k, y - 10 * k * hy, 2 * k, 2 * k);
+  g.rect(O, x + 7 * k, y - 7 * k * hy, Math.max(1, k), Math.max(1, k));
+  g.rect('#e86a8a', x + 9 * k, y - 6 * k * hy, Math.max(1, k), Math.max(1, k));
+}
+
+function makeMouse(opts = {}) {
+  const admin = store.get('admin', 0);
+  const m = { t: 0, dur: opts.arcade ? 25 : 40, success: false, score: 0, hits: 0, mice: [], fx: [], next: .6, over: false, reason: '' };
+  m.update = dt => {
+    m.fx.forEach(f => f.t += dt); m.fx = m.fx.filter(f => f.t < .6);
+    if (m.over) return;
+    m.t += dt;
+    const maxOn = Math.min(5, 2 + (m.t / 10 | 0));
+    if ((m.next -= dt) <= 0) {
+      const busy = m.mice.map(o => o.h), free = MOUSE_HOLES.map((_, i) => i).filter(i => !busy.includes(i));
+      if (m.mice.length < maxOn && free.length) {
+        const white = Math.random() < .12;
+        m.mice.push({ h: pick(free), age: 0, white, life: rnd(.8, 1.3) * Math.max(.55, 1 - m.t / 70) * (white ? .6 : 1), hit: 0 });
+      }
+      m.next = Math.max(.3, .85 - m.t * .012) * rnd(.6, 1.3);
+    }
+    m.mice.forEach(o => { o.age += dt; if (o.hit) o.hit += dt; });
+    m.mice = m.mice.filter(o => (o.hit ? o.hit < .35 : o.age < o.life));
+    if (m.t >= m.dur) {
+      m.over = true; m.success = m.score >= 80;
+      m.reason = opts.arcade && m.success ? L('Topi sconfitti!', 'Mice defeated!') : L('Tempo scaduto!', "Time's up!");
+    }
+  };
+  // quanto il topo è fuori dalla tana (0..1): sale, resta, poi rientra
+  const out = o => Math.min(1, o.age / .12, (o.life - o.age) / .12);
+  m.click = (x, y) => {
+    for (const o of m.mice) {
+      const [hx, hy] = MOUSE_HOLES[o.h];
+      if (o.hit || out(o) < .5 || Math.abs(x - hx) > 10 || y < hy - 14 || y > hy + 2) continue;
+      o.hit = .001;
+      const p = o.white ? 25 : 10;
+      m.score += p; m.hits++;
+      m.fx.push({ x: hx, y: hy - 16, t: 0, s: '+' + p });
+      return;
+    }
+    m.fx.push({ x, y: y - 4, t: 0, s: L('Mancato', 'Miss'), miss: true });
+  };
+  m.draw = () => {
+    drawKitchen();
+    m.mice.forEach(o => {
+      const [hx, hy] = MOUSE_HOLES[o.h];
+      ctx.save(); ctx.beginPath(); ctx.rect(hx - 14, hy - 20, 28, 20); ctx.clip();   // il topo esce dalla tana
+      drawMouse(hx - 2, hy + (o.hit ? 0 : (1 - out(o)) * 12), 1, o.white, o.hit ? .6 : 0);
+      ctx.restore();
+      if (o.hit) { const s = 'PAF!'; text(s, hx - F.width(s) / 2, hy - 18, C.y); }
+    });
+    m.fx.forEach(f => text(f.s, f.x - F.width(f.s) / 2, f.y - f.t * 14, f.miss ? C.dim : C.g));
+    g.rect('#0d0f24d0', 0, 0, W, 10);
+    text(L('Punti ', 'Score ') + m.score, 3, 3, C.ink);
+    text(L('Topi ', 'Mice ') + m.hits, 70, 3, C.dim);
+    const left = Math.max(0, Math.ceil(m.dur - m.t)) + 's';
+    text(left, 236 - F.width(left), 3, m.dur - m.t <= 10 ? C.r : C.dim);
+  };
+  return m;
+}
+
+/* =================== MINIGIOCO 4: VIA IL FUMO! =================== */
+const ROOMS = [4, 82, 160];                 // x di partenza delle 3 stanze, larghe 76
+const RW = 76, RT = 12;
+function drawRooms(smoke) {
+  g.rect('#5a4a3a', 0, 0, W, H);
+  ROOMS.forEach((x0, i) => {
+    g.rect(['#e8d4b0', '#d8e0c8', '#e0d0d8'][i], x0, RT, RW, FLOOR - RT);
+    g.rect('#8a6440', x0, FLOOR - 3, RW, 3);
+    // camino con fuoco
+    g.rect('#6a6058', x0 + 8, 52, 18, 24); g.rect('#8a8278', x0 + 4, 76, 26, FLOOR - 79);
+    g.rect('#1a1210', x0 + 9, 88, 16, FLOOR - 91);
+    const fl = (performance.now() / 120 + i) | 0;
+    g.rect('#e86a20', x0 + 11, FLOOR - 10, 12, 6); g.rect('#f5c518', x0 + 13 + fl % 3, FLOOR - 13, 6, 6);
+    // poltrona e finestra aperta
+    g.rect('#7a4a3a', x0 + 36, 104, 16, 14); g.rect('#9a5a4a', x0 + 38, 98, 12, 8);
+    g.rect('#f4f1e8', x0 + 54, 36, 18, 28); g.rect('#a9cbe0', x0 + 56, 38, 14, 24);
+    g.rect('#6a8ab0', x0 + 56, 38, 3, 24);                                   // anta aperta
+    if (!smoke) return;
+    // fumo: nuvole grigie sempre più fitte
+    const s = smoke[i], n = Math.round(s / 5), t = performance.now() / 1000;
+    if (s > 5) g.rect('#7a7a84' + Math.round(s * 1.2).toString(16).padStart(2, '0'), x0, RT, RW, FLOOR - RT);
+    for (let k = 0; k < n; k++) {
+      const bx = x0 + 10 + (k * 37 + i * 11) % 56 + Math.sin(t * .6 + k) * 3, by = RT + 8 + (k * 23 + i * 7) % 70 + Math.cos(t * .5 + k) * 2;
+      ell('#a8a8b0c0', bx, by, 7, 4); ell('#d8d8e0a0', bx - 1, by - 1, 4, 2);
+    }
+  });
+  g.rect('#3a2a1e', 0, RT - 2, W, 2);
+}
+
+function makeSmoke(opts = {}) {
+  const m = { t: 0, dur: opts.arcade ? 30 : Infinity, success: false, score: 0, smoke: [10, 10, 10], rate: [3, 3, 3],
+    removed: 0, fan: null, next: 1.5, over: false, reason: '' };
+  const room = x => ROOMS.findIndex(x0 => x >= x0 && x < x0 + RW);
+  function blow(x, y, amount) {
+    const i = room(x);
+    if (i < 0 || y < RT || y > FLOOR) return;
+    const d = Math.min(m.smoke[i], amount);
+    m.smoke[i] -= d; m.removed += d;
+    m.fan = { x, y, t: 0 };
+  }
+  m.update = dt => {
+    if (m.fan && (m.fan.t += dt) > .25) m.fan = null;
+    if (m.over) return;
+    m.t += dt;
+    // ogni camino cambia ritmo; ogni tanto uno sbuffo improvviso
+    if ((m.next -= dt) <= 0) {
+      m.rate = m.rate.map(() => rnd(2, 5) + m.t * .09);
+      m.smoke[Math.random() * 3 | 0] += 12;
+      m.next = rnd(1.5, 3);
+    }
+    m.smoke = m.smoke.map((s, i) => Math.min(100, s + m.rate[i] * dt));
+    m.score = Math.round(m.removed / 2) + (m.t | 0);
+    if (m.smoke.some(s => s >= 100)) { m.over = true; m.reason = L('Coff! Che fumo!', 'Cough! Too much smoke!'); }
+    else if (m.t >= m.dur) { m.over = true; m.success = true; m.reason = L('Aria pulita!', 'Fresh air!'); }
+  };
+  m.click = (x, y) => blow(x, y, 7);
+  let last = null;
+  m.move = (x, y) => {
+    if (last) blow(x, y, Math.min(4, Math.hypot(x - last[0], y - last[1]) * .3));
+    last = [x, y];
+    clearTimeout(m.lastT); m.lastT = setTimeout(() => last = null, 120);
+  };
+  m.draw = () => {
+    drawRooms(m.smoke);
+    ROOMS.forEach((x0, i) => {
+      const s = m.smoke[i];
+      g.rect('#000000', x0 + 4, RT + 3, RW - 8, 4);
+      g.rect(s > 70 ? C.r : s > 40 ? C.y : C.g, x0 + 4, RT + 3, (RW - 8) * s / 100, 4);
+    });
+    if (m.fan) {   // ventaglio e linee di vento verso la finestra
+      const { x, y } = m.fan;
+      for (let k = 0; k < 5; k++) g.rect('#c8a040', x - 4 + k * 2, y - 6 + Math.abs(k - 2), 1, 6 - Math.abs(k - 2));
+      g.rect('#7a5230', x, y, 1, 4);
+      for (let k = 0; k < 3; k++) g.rect('#ffffffa0', x + 6 + k * 4, y - 4 + k * 3, 5, 1);
+    }
+    g.rect('#0d0f24d0', 0, 0, W, 10);
+    text(L('Punti ', 'Score ') + m.score, 3, 3, C.ink);
+    const tt = (isFinite(m.dur) ? Math.max(0, Math.ceil(m.dur - m.t)) : m.t | 0) + 's';
+    text(tt, 236 - F.width(tt), 3, C.dim);
+  };
+  return m;
+}
+
 /* =================== ELENCO MINIGIOCHI =================== */
 const GAMES = [
   { id: 'leak',
@@ -630,7 +831,23 @@ const GAMES = [
       "Like every morning, off we go mushroom hunting. Run to the Val di Rabbi woods and pick porcini (brown, 10 points) and chanterelles (yellow, 5 points). Watch out for the red ones: they are poisonous and empty your basket!"),
     tip: a => a ? L('25 secondi: almeno 30 punti per risolvere', '25 seconds: at least 30 points to solve it') : L('45 secondi: clicca sui funghi buoni', '45 seconds: click the good mushrooms'),
     drawBg: drawForest, create: makeMush,
-    icon: (cx, cy) => { drawMush('p', cx - 12, cy + 8, 1.4); drawMush('f', cx + 2, cy + 8, 1.3); drawMush('r', cx + 16, cy + 8, 1.1); } }
+    icon: (cx, cy) => { drawMush('p', cx - 4, cy + 8, 1.1); drawMush('f', cx + 6, cy + 10, .9); } },
+  { id: 'mouse',
+    title: () => L('Caccia ai topi', 'Mouse panic'),
+    ring: () => L('Aiuto, un topo!', 'Help, a mouse!'),
+    intro: () => L("Urla dalla cucina del terzo piano: ci sono i topi! Spuntano dalle tane, dal piano di lavoro e da sopra il frigorifero. Colpiscili piu veloce che puoi: i topi grigi valgono 10 punti, quelli bianchi sono velocissimi e ne valgono 25!",
+      "Screams from the third-floor kitchen: mice! They pop out of holes, off the worktop and from on top of the fridge. Hit them as fast as you can: grey mice are worth 10 points, white ones are super fast and worth 25!"),
+    tip: a => a ? L('25 secondi: almeno 80 punti per risolvere', '25 seconds: at least 80 points to solve it') : L('40 secondi: clicca sui topi', '40 seconds: click the mice'),
+    drawBg: drawKitchen, create: makeMouse,
+    icon: (cx, cy) => drawMouse(cx - 2, cy + 8, 1.4) },
+  { id: 'smoke',
+    title: () => L('Via il fumo!', 'Smoke out!'),
+    ring: () => L('Coff coff!', 'Cough cough!'),
+    intro: () => L("Si sono accesi tutti i caminetti insieme e il fumo invade gli appartamenti. Sventola come un matto: clicca o trascina dentro le stanze per spingere il fumo fuori dalla finestra, prima che una casa si riempia del tutto!",
+      "All the fireplaces were lit at once and smoke is filling the flats. Fan like crazy: click or drag inside the rooms to push the smoke out of the window, before a home fills up completely!"),
+    tip: a => a ? L('Resisti 30 secondi senza far riempire le stanze', 'Hold on 30 seconds without letting a room fill up') : L('Clicca o trascina nelle stanze per sventolare', 'Click or drag in the rooms to fan'),
+    drawBg: () => drawRooms(null), create: makeSmoke,
+    icon: (cx, cy) => { ell('#6a6a74', cx, cy + 2, 10, 6); ell('#a8a8b0', cx - 2, cy, 8, 5); ell('#d8d8e0', cx + 2, cy - 2, 5, 3); } }
 ];
 
 /* --- avvio --- */

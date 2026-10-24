@@ -258,7 +258,7 @@ Codice: `admins-art.js` (sprite + schede), `pixel-font.js` (carattere 3×5 compl
 - Dopo la scelta dell'amministratore: **Arcade** oppure **Minigiochi** (scelta libera, per allenarsi).
 - **Arcade**: turni sul condominio; gli appartamenti con un problema lampeggiano e si clicca su di loro per avviare il minigioco. Turno 1 = 2 minigiochi, poi +2 ogni turno. Punteggio totale + bonus felicità a fine turno, record con nome. Felicità a 0 = sfrattato.
 - In arcade i minigiochi sono brevi e dicono se il problema è **risolto** (felicità +10) o no (−10); un problema ignorato fino alla scadenza vale −15.
-- Implementato: turno 1 (Perdita d'acqua, Raccolta funghi). Da fare: turni successivi, Assemblea a fine turno, bonus/malus degli amministratori.
+- Implementato: turno 1 (Perdita d'acqua, Raccolta funghi) e turno 2 (+ Caccia ai topi, Via il fumo!). Da fare: turni successivi, Assemblea a fine turno, bonus/malus degli amministratori.
 
 ### Regole comuni a tutti i minigiochi ✅
 - **Prima di partire**: una schermata con una **spiegazione simpatica** (chi chiama, cosa succede, come si gioca) e un tasto VIA.
