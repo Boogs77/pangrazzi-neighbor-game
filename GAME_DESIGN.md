@@ -70,10 +70,10 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 **Regole del formato** (oltre alla legenda sotto)
 - Ogni carattere = una colonna (6 px); passo finestre = 4 caratteri.
 - `>` / `<` subito dopo una lettera = mezza colonna a destra / sinistra.
-- Righe: `MS:` mansarda · `zc:` zoccolo · `ap:` appartamenti della riga sopra (stessa colonna della finestra; `1`–`9`, poi `a`=10, `b`=11 … `h`=17).
+- Righe: `MS:` mansarda · `zc:` zoccolo · `ap:` appartamenti della riga sopra (stessa colonna della finestra; `1`–`9`, poi `a`=10, `b`=11 … `i`=18).
 - Un piano terra con P/Q/T è "basso" (alto quanto la porta); F scende fino allo zoccolo; L si attacca al muro dal lato in cui è scritto.
 
-**Appartamenti (17)** — vedi `edificio-appartamenti.png`
+**Appartamenti (18)** — vedi `edificio-appartamenti.png`
 | Int. | Dove | Composizione |
 |---|---|---|
 | 1 | B1 pt | F + 6 finestrelle G |
@@ -93,8 +93,9 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 | 15 | mansarda | 2° e 3° abbaino |
 | 16 | mansarda | 4° e 5° abbaino |
 | 17 | B3 3° | solo il terrazzo laterale destro |
+| 18 | B3 pt | ⭐ **NEGOZIO Souvenirs**: 3 finestrelle G + porta Q (in evidenza nell'immagine) |
 
-❓ **Da assegnare**: finestra sopra il portone (Bc pp); piano terra del blocco 3 (G G Q G); il negozio Q è un appartamento?
+❓ **Da assegnare**: solo la finestra sopra il portone (Bc pp).
 ❓ Le finestrelle G accanto al negozio (blocco 3) sono davvero G o E (inferriata + gerani)?
 
 *Legenda finestre e porte* — `reference/legenda.png`
@@ -279,7 +280,7 @@ Categorie: 🔧 riparazione · 📋 burocrazia · 🧑‍🤝‍🧑 condomini �
 1. [x] Fornire l'indirizzo del condominio reale.
 1b. [x] Foto della facciata (salvate in `reference/`).
 1c. [x] Facciata v3 disegnata da `reference/edificio.md` (3 blocchi, pendenza, mansarda).
-1d. [ ] Finire la divisione in appartamenti (finestra sopra il portone, piano terra blocco 3).
+1d. [ ] Finire la divisione in appartamenti (manca la finestra sopra il portone).
 1e. [ ] Portare la facciata v3 nel gioco (finestre cliccabili per appartamento).
 2. [ ] Scegliere gli amministratori (sezione 5) e i minigiochi (sezione 6).
 3. [ ] Rispondere alle decisioni aperte (sezione 3).

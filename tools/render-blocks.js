@@ -209,16 +209,24 @@ const APT_COL = ['#ff5a5a', '#5ad1ff', '#ffd23a', '#7dff7a', '#ff8af0', '#ffa040
 function drawApartments(cv, blocks) {
   const apts = new Map();
   blocks.forEach(b => b.rows.forEach(r => r.items.forEach(it => {
-    if (it.apt && it.box) (apts.get(it.apt) || apts.set(it.apt, []).get(it.apt)).push(it.box);
+    if (!it.apt || !it.box) return;
+    const a = apts.get(it.apt) || apts.set(it.apt, { boxes: [], shop: false }).get(it.apt);
+    a.boxes.push(it.box);
+    if (it.k == 'Q') a.shop = true;
   })));
-  [...apts].forEach(([id, boxes]) => {
+  [...apts].forEach(([id, { boxes, shop }]) => {
     const c = APT_COL[parseInt(id, 36) % APT_COL.length]; // colore fisso per numero
     const x0 = Math.min(...boxes.map(q => q[0])) - 2, y0 = Math.min(...boxes.map(q => q[1])) - 2;
     const x1 = Math.max(...boxes.map(q => q[0] + q[2])) + 2, y1 = Math.max(...boxes.map(q => q[1] + q[3])) + 2;
     cv.rect(c + '40', x0, y0, x1 - x0, y1 - y0);
     cv.rect(c, x0, y0, x1 - x0, 1); cv.rect(c, x0, y1 - 1, x1 - x0, 1);
     cv.rect(c, x0, y0, 1, y1 - y0); cv.rect(c, x1 - 1, y0, 1, y1 - y0);
-    const label = String(parseInt(id, 36)); // a = 10, b = 11, ...
+    // il negozio è in evidenza: bordo doppio e scritta NEGOZIO
+    if (shop) {
+      cv.rect(c, x0 + 2, y0 + 2, x1 - x0 - 4, 1); cv.rect(c, x0 + 2, y1 - 3, x1 - x0 - 4, 1);
+      cv.rect(c, x0 + 2, y0 + 2, 1, y1 - y0 - 4); cv.rect(c, x1 - 3, y0 + 2, 1, y1 - y0 - 4);
+    }
+    const label = String(parseInt(id, 36)) + (shop ? ' NEGOZIO' : ''); // a = 10, b = 11, ...
     const lx = (x0 + x1 >> 1) - label.length * 2, ly = (y0 + y1 >> 1) - 3;
     cv.rect('#000000c0', lx - 1, ly - 1, label.length * 4 + 1, 7);
     A.text(cv, label, lx, ly, '#ffffff');
