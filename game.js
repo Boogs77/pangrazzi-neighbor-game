@@ -97,7 +97,7 @@ function fitName() { if (nameBox) nameInput.style.fontSize = Math.max(10, wrap.c
 addEventListener('resize', fitName);
 
 const bg = new Image();
-bg.src = 'reference/edificio.png?v=202610241820';
+bg.src = 'assets/edificio.png?v=202610241827';
 
 /* --- testi inglesi degli amministratori (gli italiani sono in admins-art.js) --- */
 const ADMIN_EN = [

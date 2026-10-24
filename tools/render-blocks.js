@@ -254,6 +254,8 @@ const blocks = parse(path.join(out, 'edificio.md'));
 blocks.forEach(b => console.log(b.name, b.rows.map(r => r.label + ':' + r.items.map(it => it.k + '@' + it.col + (it.apt ? '#' + it.apt : '')).join(' ')).join(' | ')));
 const cv = drawAll(blocks);
 png(cv, path.join(out, 'edificio.png'));
+// copia usata dal gioco (la cartella reference/ resta solo in locale)
+png(cv, path.join(__dirname, '..', 'assets', 'edificio.png'));
 png(drawApartments(cv, blocks), path.join(out, 'edificio-appartamenti.png'));
 
 // posizione delle unità sulla facciata, per renderle cliccabili nel gioco (facade-data.js)
