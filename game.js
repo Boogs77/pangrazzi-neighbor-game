@@ -68,7 +68,7 @@ cv.addEventListener('pointerdown', e => {
 // trascinamento (tasto premuto o dito sullo schermo), usato per sventolare: va solo a scene.drag,
 // mai a funzioni con altri nomi (es. Choose.move), perché il dito si muove anche durante un semplice tocco
 cv.addEventListener('pointermove', e => {
-  if (e.pointerType == 'mouse' && !(e.buttons & 1)) return;
+  if (e.pointerType == 'mouse' && !(e.buttons & 1)) { scene.hover && scene.hover(...pos(e)); return; }   // mouse senza tasto: solo hover
   e.preventDefault();
   scene.drag && scene.drag(...pos(e));
 });
@@ -97,7 +97,7 @@ function fitName() { if (nameBox) nameInput.style.fontSize = Math.max(10, wrap.c
 addEventListener('resize', fitName);
 
 const bg = new Image();
-bg.src = 'reference/edificio.png?v=202610241811';
+bg.src = 'reference/edificio.png?v=202610241812';
 
 /* --- testi inglesi degli amministratori (gli italiani sono in admins-art.js) --- */
 const ADMIN_EN = [
@@ -229,7 +229,8 @@ const Mode = {
 const TURNS = [
   { games: ['leak', 'mush'], dur: 75, every: [6, 10], max: 2, deadline: 25 },
   { games: ['leak', 'mush', 'mouse', 'smoke'], dur: 90, every: [5, 8], max: 3, deadline: 22 },
-  { games: ['leak', 'mush', 'mouse', 'smoke', 'gas', 'snow'], dur: 100, every: [4, 7], max: 3, deadline: 20 }
+  { games: ['leak', 'mush', 'mouse', 'smoke', 'gas', 'snow'], dur: 100, every: [4, 7], max: 3, deadline: 20 },
+  { games: ['leak', 'mush', 'mouse', 'smoke', 'gas', 'snow', 'ice', 'wood'], dur: 110, every: [4, 6], max: 3, deadline: 20 }
 ];
 const FY = 14;                                       // la facciata parte sotto la barra in alto
 const fs_ = () => W / FACADE.w;                      // scala facciata -> schermo
@@ -253,6 +254,7 @@ function miniIcon(id, x, y) {
   else if (id == 'mouse') drawMouse(x - 1, y + 3, .5);
   else if (id == 'gas') drawBombola(x, y + 4, true);
   else if (id == 'ice') { g.rect('#bfe4ff', x - 4, y + 1, 9, 2); g.rect('#ffffff', x - 2, y + 1, 2, 1); g.rect('#d04040', x - 1, y - 4, 4, 4); }
+  else if (id == 'wood') { g.rect('#3e2716', x - 4, y - 1, 9, 4); g.rect('#8a5a2e', x - 3, y, 7, 2); g.rect('#d8b080', x - 4, y, 2, 2); }
   else if (id == 'snow') { g.rect('#ffffff', x - 3, y, 7, 1); g.rect('#ffffff', x, y - 3, 1, 7); g.rect('#c8d4e4', x - 2, y - 2, 1, 1); g.rect('#c8d4e4', x + 2, y + 2, 1, 1); }
   else { ell('#6a6a74', x, y, 4, 2); ell('#c8c8d0', x - 1, y - 1, 3, 2); ell('#e8e8ee', x + 1, y - 1, 2, 1); }
 }
@@ -422,7 +424,8 @@ const Play = {
     if (this.m.over) { g.rect('#0d0f24c0', 0, 54, W, 24); center(this.m.reason, 60, C.y, 2); }
   },
   click(x, y) { if (!this.m.over) this.m.click(x, y); },
-  drag(x, y) { if (!this.m.over && this.m.drag) this.m.drag(x, y); },
+  drag(x, y) { if (!this.m.over && this.m.drag) this.m.drag(x, y); if (!this.m.over && this.m.hover) this.m.hover(x, y); },
+  hover(x, y) { if (!this.m.over && this.m.hover) this.m.hover(x, y); },
   key(k) { if (k == 'Escape') this.actx ? go(Arcade) : go(Menu); }
 };
 
@@ -1176,6 +1179,98 @@ function makeIce(opts = {}) {
   return m;
 }
 
+/* =================== MINIGIOCO 8: LA LEGNAIA =================== */
+// catasta in cantina: griglia 10x7, ciocchi orizzontali lunghi 1-3; fila completa = bonus e si libera
+const WCOLS = 10, WROWS = 7, WCW = 10, WCH = 8, WX = 70, WY = 50;
+const WOOD = ['#8a5a2e', '#9a6a3a', '#7a4a24'];
+function drawLog(x, y, len, col, alpha = '') {
+  g.rect('#3e2716' + alpha, x, y, len * WCW, WCH);
+  g.rect(col + alpha, x + 1, y + 1, len * WCW - 2, WCH - 2);
+  g.rect('#00000020', x + 1, y + WCH - 3, len * WCW - 2, 1);
+  [x + 1, x + len * WCW - 7].forEach(rx => { g.rect('#d8b080' + alpha, rx, y + 1, 6, WCH - 2); g.rect('#a07848' + alpha, rx + 2, y + 3, 2, 2); });
+}
+function drawCellar() {
+  g.rect('#4a4440', 0, 0, W, H);
+  for (let y = 12; y < 110; y += 8) for (let x = ((y / 8) & 1) * 9; x < W; x += 18) g.rect('#5a544e', x, y, 16, 6);   // pietre
+  g.rect('#2a2420', 0, 110, W, H - 110);
+  g.rect('#6a6058', 0, 108, W, 2);
+  g.rect('#a9cbe0', 200, 16, 22, 10); g.rect('#3a3430', 210, 16, 1, 10);              // bocca di lupo
+  g.rect('#5a3a22', WX - 4, WY - 2, 2, WROWS * WCH + 4); g.rect('#5a3a22', WX + WCOLS * WCW + 2, WY - 2, 2, WROWS * WCH + 4);   // paletti
+  g.rect('#3a3430', WX, WY + WROWS * WCH, WCOLS * WCW, 2);
+  g.rect('#2a2420', 20, 70, 30, 38); g.rect('#e86a20', 26, 92, 18, 10); g.rect('#f5c518', 30, 94, 8, 6);   // stufa
+}
+
+function makeWood(opts = {}) {
+  const m = { t: 0, dur: opts.arcade ? 30 : 45, success: false, score: 0, rows: 0, grid: Array.from({ length: WROWS }, () => Array(WCOLS).fill(0)),
+    log: null, col: 3, auto: 0, nid: 0, colors: {}, fx: [], over: false, reason: '' };
+  const newLog = () => { const r = Math.random(); m.log = { len: r < .3 ? 1 : r < .7 ? 2 : 3, c: 1 + (Math.random() * 3 | 0), id: ++m.nid }; m.auto = Math.max(2, 4 - m.t * .04); };
+  newLog();
+  const clampCol = c => Math.max(0, Math.min(WCOLS - m.log.len, c));
+  // riga dove si posa il ciocco: sopra la colonna più alta tra quelle che occupa
+  function landing(c) {
+    let r = WROWS - 1;
+    for (let k = c; k < c + m.log.len; k++) {
+      let top = WROWS;
+      for (let rr = 0; rr < WROWS; rr++) if (m.grid[rr][k]) { top = rr; break; }
+      r = Math.min(r, top - 1);
+    }
+    return r;
+  }
+  function drop() {
+    const c = clampCol(m.col), r = landing(c);
+    if (r < 0) { m.over = true; m.reason = L('Catasta crollata!', 'The pile fell!'); return; }
+    for (let k = c; k < c + m.log.len; k++) m.grid[r][k] = m.log.id;
+    m.colors[m.log.id] = m.log.c;
+    m.score += m.log.len;
+    // file complete: bonus e la fila sparisce, quelle sopra scendono
+    for (let rr = WROWS - 1; rr >= 0; rr--) {
+      if (m.grid[rr].every(v => v)) {
+        m.grid.splice(rr, 1); m.grid.unshift(Array(WCOLS).fill(0)); m.rows++; m.score += 30;
+        m.fx.push({ x: WX + WCOLS * WCW / 2, y: WY + rr * WCH, t: 0, s: L('Fila! +30', 'Row! +30') });
+        rr++;
+      }
+    }
+    newLog();
+  }
+  m.update = dt => {
+    m.fx.forEach(f => f.t += dt); m.fx = m.fx.filter(f => f.t < 1);
+    if (m.over) return;
+    m.t += dt;
+    if ((m.auto -= dt) <= 0) drop();                    // il ciocco cade da solo se aspetti troppo
+    if (!m.over && m.t >= m.dur) {
+      m.over = true; m.success = m.rows >= 2;
+      m.reason = opts.arcade && m.success ? L('Legnaia in ordine!', 'Woodpile sorted!') : L('Tempo scaduto!', "Time's up!");
+    }
+  };
+  m.hover = x => { m.col = Math.floor((x - WX) / WCW - m.log.len / 2 + .5); };
+  m.click = (x, y) => { m.hover(x); drop(); };
+  m.draw = () => {
+    drawCellar();
+    m.grid.forEach((row, r) => {                            // i ciocchi posati: celle consecutive con lo stesso numero = un tronco
+      for (let c = 0; c < WCOLS;) {
+        if (!row[c]) { c++; continue; }
+        let n = 1; while (c + n < WCOLS && row[c + n] == row[c]) n++;
+        drawLog(WX + c * WCW, WY + r * WCH, n, WOOD[m.colors[row[c]] - 1]);
+        c += n;
+      }
+    });
+    if (m.log && !m.over) {
+      const c = clampCol(m.col), r = landing(c);
+      if (r >= 0) drawLog(WX + c * WCW, WY + r * WCH, m.log.len, WOOD[m.log.c - 1], '60');   // dove cadrà
+      drawLog(WX + c * WCW, WY - 14, m.log.len, WOOD[m.log.c - 1]);
+      g.rect('#000000', WX, WY - 18, WCOLS * WCW, 2);
+      g.rect(m.auto > 1 ? C.g : C.r, WX, WY - 18, WCOLS * WCW * Math.min(1, m.auto / 4), 2);
+    }
+    m.fx.forEach(f => text(f.s, f.x - F.width(f.s) / 2, f.y - f.t * 12, C.y));
+    g.rect('#0d0f24d0', 0, 0, W, 10);
+    text(L('Punti ', 'Score ') + m.score, 3, 3, C.ink);
+    text(L('File ', 'Rows ') + m.rows, 70, 3, C.dim);
+    const left = Math.max(0, Math.ceil(m.dur - m.t)) + 's';
+    text(left, 236 - F.width(left), 3, m.dur - m.t <= 10 ? C.r : C.dim);
+  };
+  return m;
+}
+
 /* =================== ELENCO MINIGIOCHI =================== */
 const GAMES = [
   { id: 'leak',
@@ -1232,7 +1327,15 @@ const GAMES = [
       "It is freezing tonight and the sloping sidewalk in front of the building turns into an ice rink. Click the ice patches to spread salt before the residents walk on them. Salt runs out: refill it from the red bucket at the top of the slope!"),
     tip: a => a ? L('25 secondi: al massimo una caduta', '25 seconds: one fall at most') : L('45 secondi, 3 vite, 8 manciate di sale', '45 seconds, 3 lives, 8 handfuls of salt'),
     drawBg: () => drawSlope(null), create: makeIce,
-    icon: (cx, cy) => { g.rect('#bfe4ff', cx - 8, cy + 4, 16, 3); g.rect('#ffffff', cx - 5, cy + 4, 2, 1); g.rect('#d04040', cx - 3, cy - 6, 7, 8); g.rect('#f4f4f4', cx - 2, cy - 5, 5, 2); } }
+    icon: (cx, cy) => { g.rect('#bfe4ff', cx - 8, cy + 4, 16, 3); g.rect('#ffffff', cx - 5, cy + 4, 2, 1); g.rect('#d04040', cx - 3, cy - 6, 7, 8); g.rect('#f4f4f4', cx - 2, cy - 5, 5, 2); } },
+  { id: 'wood',
+    title: () => L('La legnaia', 'Woodpile'),
+    ring: () => L('Arriva il freddo!', 'Winter is coming!'),
+    intro: () => L("Il camion ha scaricato la legna per l'inverno e va sistemata in cantina. Muovi il ciocco e clicca dove farlo cadere: ogni fila completa vale 30 punti e lascia spazio. Non aspettare troppo, il ciocco cade da solo, e se la catasta arriva in cima crolla tutto!",
+      "The truck has dropped off the winter firewood and it must be stacked in the cellar. Move the log and click where to drop it: every full row is worth 30 points and frees space. Do not wait too long, the log drops by itself, and if the pile reaches the top it all falls down!"),
+    tip: a => a ? L('30 secondi: completa almeno 2 file', '30 seconds: complete at least 2 rows') : L('45 secondi: completa piu file che puoi', '45 seconds: complete as many rows as you can'),
+    drawBg: drawCellar, create: makeWood,
+    icon: (cx, cy) => { drawLog(cx - 10, cy + 2, 2, WOOD[0]); drawLog(cx - 5, cy - 6, 1, WOOD[1]); } }
 ];
 
 /* --- avvio --- */
