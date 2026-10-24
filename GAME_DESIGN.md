@@ -92,20 +92,19 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 | 15 | mansarda | 2° e 3° abbaino |
 | 16 | mansarda | 4° e 5° abbaino |
 | 17 | B3 3° | solo il terrazzo laterale destro |
-| 18 | B3 pt | ⭐ **NEGOZIO Souvenirs**: 3 finestrelle G + porta Q (in evidenza nell'immagine) |
+| 18 | B3 pt | ⭐ **NEGOZIO Souvenirs**: 3 finestre E (inferriata + gerani) + porta Q (in evidenza nell'immagine) |
 | 19 | zoccolo B1 + pt Bc | 🔧 **CANTINA** (spazio comune): 2 finestrelle H + porticina U — speciale, intervengono tutti (bordo tratteggiato) |
 | 20 | pt Bc | 🔧 **CANTINA** (spazio comune): 2 finestrelle H, senza porta — speciale, intervengono tutti (bordo tratteggiato) |
 | 21 | Bc pp + pt | 🏛️ **PARTE COMUNE**: portone P + finestra sopra (androne/scale) — non è di nessuno ma è oggetto del gioco (bordo tratteggiato) |
 
 ✅ Tutte le finestre e porte sono assegnate. Speciali: 18 negozio (bordo doppio), 19–20 cantine e 21 parte comune (bordo tratteggiato).
-❓ Le finestrelle G accanto al negozio (blocco 3) sono davvero G o E (inferriata + gerani)?
+✅ Accanto al negozio: finestre **E** (inferriata + gerani).
 
 *Legenda finestre e porte* — `reference/legenda.png`
 
 | Lettera | Tipo | Dove si vede |
 |---|---|---|
-| **A** | Finestra con scuri rossi **aperti** | ultimo piano |
-| **B** | Finestra con scuri rossi/bordeaux **chiusi** | tutti i piani |
+| **A** / **B** | **Finestra con scuri rossi** — A e B sono la stessa finestra: nel disegno è indifferente scrivere A o B; **durante il gioco gli scuri si aprono e si chiudono** (stato dinamico) | tutti i piani degli appartamenti |
 | **C** | Finestra con scuri viola **chiusi** | piani intermedi |
 | **D** | Finestra con scuri viola **aperti** | piani intermedi |
 | **E** | Finestra piano terra con **inferriata**, scuri marroni e gerani | corpo lungo, piano terra |

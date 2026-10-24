@@ -150,7 +150,8 @@ function drawAll(blocks) {
       const low = r == b.ground || r.plinth;
       const y = r.attic ? WALL_TOP - 5 : low ? top0 + 13 : base(j);
       if (!r.attic && !r.plinth) j++;
-      r.items.forEach(it => {
+      // prima le finestre, poi le porte: insegne e tettoie restano sopra le ante aperte
+      [...r.items].sort((p, q) => DOORS.includes(p.k) - DOORS.includes(q.k)).forEach(it => {
         const cx = it.x != null ? it.x : b.X(it.col + (it.nudge || 0));
         if (it.k == '|') return cv.rect(P.pipe, cx, WALL_TOP - 2, 1, street(cx) - WALL_TOP + 2);
         const t = A.TYPES[it.k];
