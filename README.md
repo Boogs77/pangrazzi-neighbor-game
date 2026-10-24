@@ -2,6 +2,8 @@
 
 Arcade game in pixel art set in a real condominium in Bagni di Rabbi (Trentino). You play the building administrator and solve the residents' problems through minigames.
 
+- `index.html` + `game.js` — **the game**: title, administrator choice, minigames (Water leak, Mushroom hunt), name + high scores. Open it through a local server, e.g. `python -m http.server` then http://127.0.0.1:8000
+- `admins-art.js`, `pixel-font.js` — administrator sprites and 3x5 pixel font
 - `Condominio Pangrazzi.html` — original playable prototype
 - `GAME_DESIGN.md` — design document (Italian)
 - `building-art.js` — pixel-art facade (240×135), works in browser and Node
