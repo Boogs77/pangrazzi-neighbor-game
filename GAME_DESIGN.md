@@ -10,12 +10,9 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 
 ✅ **Titolo:** *Pangrazzi: The Neighbor Game* (dall'italiano "Il gioco del condomino Pangrazzi")
 
-❓ **In una frase:** _(da scrivere — es. "Sei l'amministratore di un condominio caotico e devi tenere tutti contenti, soprattutto Pangrazzi")_
+❓ **In una frase:** _(da scrivere — es. "Sei l'amministratore del Condominio Pangrazzi e devi tenere contenti tutti i condomini")_
 
-❓ **Chi è Pangrazzi?**
-- Il giocatore stesso?
-- Il vicino molesto / antagonista?
-- Il proprietario dello stabile?
+✅ **Pangrazzi è solo il nome del condominio** (Condominio Pangrazzi), non un personaggio.
 
 ❓ **Tono:** comico/satirico sulla vita di condominio? Arcade puro?
 
@@ -155,7 +152,6 @@ piano terra:  R
 - **19 appartamenti** numerati dal 1° piano in su:
   - 1° piano: int. 1–6 · 2° piano: int. 7–12 · 3° piano: int. 13–18 · mansarda: int. 19
 - Strada: fermata bus, marciapiede in porfido, arco di tronchi "SOUVENIRS".
-- 💡 Interno 19 (mansarda) = **casa di Pangrazzi**?
 - 💡 Elementi cliccabili/eventi bonus: portone, negozio, fermata del bus, panchina.
 - ❓ Confermare il numero reale di appartamenti (se lo conosci).
 
@@ -212,7 +208,6 @@ piano terra:  R
 ## 4. Idee
 
 ### Personaggi
-- 💡 Pangrazzi come vicino che crea problemi apposta (es. compare alla finestra, i suoi problemi valgono doppio).
 - 💡 Condomini con personalità: la signora del 3° piano, lo studente, il gatto…
 - 💡 Ogni appartamento ha un inquilino con il suo umore, non solo un umore globale.
 
@@ -272,7 +267,7 @@ Categorie: 🔧 riparazione · 📋 burocrazia · 🧑‍🤝‍🧑 condomini �
 | 16 | Infiltrazione / *Damp* | 🔧 | Trova la macchia di umidità nascosta | 💡 |
 | 17 | Lite tra vicini / *Feud* | 🧑‍🤝‍🧑 | Separa i due condomini prima che litighino (tempismo) | 💡 |
 | 18 | Morosi / *Late Payers* | 📋 | Trova chi non ha pagato nella lista | 💡 |
-| 19 | Pangrazzi! | ⭐ | Minigioco speciale/boss legato a Pangrazzi | ❓ |
+| 19 | Grande evento | ⭐ | Minigioco speciale nelle parti comuni (cantine, androne) dove intervengono tutti | ❓ |
 
 ❓ Quali tenere? Obiettivo indicativo: 10–12 minigiochi in totale.
 
@@ -287,6 +282,6 @@ Categorie: 🔧 riparazione · 📋 burocrazia · 🧑‍🤝‍🧑 condomini �
 1e. [ ] Portare la facciata v3 nel gioco (finestre cliccabili per appartamento).
 2. [ ] Scegliere gli amministratori (sezione 5) e i minigiochi (sezione 6).
 3. [ ] Rispondere alle decisioni aperte (sezione 3).
-4. [ ] Scrivere il concept in una frase e definire chi è Pangrazzi.
+4. [ ] Scrivere il concept in una frase (Pangrazzi = nome del condominio ✅).
 5. [ ] Pulizia tecnica: titolo, codice inutilizzato, bug di fine turno.
 6. [ ] Aggiungere sistema bilingue IT/EN.
