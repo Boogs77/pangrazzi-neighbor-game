@@ -97,7 +97,7 @@ function fitName() { if (nameBox) nameInput.style.fontSize = Math.max(10, wrap.c
 addEventListener('resize', fitName);
 
 const bg = new Image();
-bg.src = 'reference/edificio.png?v=202610241812';
+bg.src = 'reference/edificio.png?v=202610241814';
 
 /* --- testi inglesi degli amministratori (gli italiani sono in admins-art.js) --- */
 const ADMIN_EN = [
@@ -255,6 +255,7 @@ function miniIcon(id, x, y) {
   else if (id == 'gas') drawBombola(x, y + 4, true);
   else if (id == 'ice') { g.rect('#bfe4ff', x - 4, y + 1, 9, 2); g.rect('#ffffff', x - 2, y + 1, 2, 1); g.rect('#d04040', x - 1, y - 4, 4, 4); }
   else if (id == 'wood') { g.rect('#3e2716', x - 4, y - 1, 9, 4); g.rect('#8a5a2e', x - 3, y, 7, 2); g.rect('#d8b080', x - 4, y, 2, 2); }
+  else if (id == 'bear') { ell('#5a3a22', x - 1, y + 1, 4, 3); ell('#5a3a22', x + 3, y - 1, 2, 2); }
   else if (id == 'snow') { g.rect('#ffffff', x - 3, y, 7, 1); g.rect('#ffffff', x, y - 3, 1, 7); g.rect('#c8d4e4', x - 2, y - 2, 1, 1); g.rect('#c8d4e4', x + 2, y + 2, 1, 1); }
   else { ell('#6a6a74', x, y, 4, 2); ell('#c8c8d0', x - 1, y - 1, 3, 2); ell('#e8e8ee', x + 1, y - 1, 2, 1); }
 }
@@ -1271,6 +1272,127 @@ function makeWood(opts = {}) {
   return m;
 }
 
+/* =================== MINIGIOCO 10: L'ORSO NEI BIDONI =================== */
+const BINS = [40, 80, 120, 160, 200], BIN_Y = 104, GROUND = 116;
+function drawBin(x, st) {
+  const body = '#3e6a4a', dark = '#2a4a34';
+  if (st == 'mess') {                                         // rovesciato dall'orso
+    g.rect('#1a1420', x - 9, BIN_Y + 5, 20, 9); g.rect(body, x - 8, BIN_Y + 6, 18, 7);
+    [[-12, 12], [12, 13], [-4, 14], [6, 12]].forEach(([dx, dy]) => g.rect(pick(['#d8d0b0', '#8a6a4a', '#c04040']), x + dx, BIN_Y + dy, 3, 2));
+    return;
+  }
+  g.rect('#1a1420', x - 7, BIN_Y - 1, 15, 14); g.rect(body, x - 6, BIN_Y, 13, 12);
+  for (let k = -4; k < 6; k += 3) g.rect(dark, x + k, BIN_Y + 2, 1, 9);
+  if (st == 'open') { g.rect('#1a1420', x - 9, BIN_Y - 12, 3, 12); g.rect('#4e8a5a', x - 8, BIN_Y - 11, 1, 10); g.rect('#d8d0b0', x - 5, BIN_Y - 1, 11, 2); }
+  else { g.rect('#1a1420', x - 8, BIN_Y - 3, 17, 4); g.rect('#4e8a5a', x - 7, BIN_Y - 2, 15, 2); }
+}
+function drawBear(x, dir, t, eating) {
+  const B = '#5a3a22', D = '#3e2716', y = GROUND;
+  const st = eating ? 0 : (t * 8 | 0) % 2;
+  [-8, -4, 3, 7].forEach((dx, i) => g.rect(D, x + dx * dir, y - 5 + ((i + st) % 2), 3, 5));
+  ell('#1a1420', x, y - 9, 12, 7); ell(B, x, y - 9, 11, 6);
+  const hx = x + 11 * dir, hy = y - (eating ? 6 : 12);
+  ell('#1a1420', hx, hy, 6, 5); ell(B, hx, hy, 5, 4);
+  ell(B, hx - 3 * dir, hy - 4, 2, 2); ell(B, hx + 2 * dir, hy - 4, 2, 2);
+  ell('#a07850', hx + 4 * dir, hy + 1, 2, 2); g.rect('#1a1420', hx + 5 * dir, hy, 1, 1);
+  g.rect('#ffffff', hx + 1 * dir, hy - 1, 1, 1);
+}
+function drawYard(bins) {
+  g.rect('#141c38', 0, 0, W, H);
+  ell('#f4f0d0', 200, 22, 8, 8); ell('#141c38', 204, 19, 7, 7);                       // luna
+  for (let i = 0; i < 40; i++) g.rect('#c8d4ff', (i * 61) % W, (i * 17) % 50, 1, 1);
+  for (let i = 0; i < 22; i++) {                                                    // bosco scuro
+    const x = (i * 23) % (W + 20) - 10, h = 26 + (i * 7) % 14;
+    for (let k = 0; k < h; k++) g.rect('#0e1a14', x - (k >> 1), 90 - h + k, (k >> 1) * 2 + 1, 1);
+  }
+  g.rect('#c99a3c', 0, 40, 26, 80); g.rect('#ffd860', 6, 52, 10, 10); g.rect('#ffd860', 6, 74, 10, 10);   // muro del condominio
+  g.rect('#2a3a2a', 0, 98, W, H - 98); g.rect('#3a3c42', 0, GROUND, W, H - GROUND);
+  if (bins) bins.forEach((b, i) => drawBin(BINS[i], b.st));
+}
+
+function makeBear(opts = {}) {
+  const m = { t: 0, dur: opts.arcade ? 30 : 45, success: false, score: 0, lives: 3, eaten: 0, torch: 3,
+    bins: BINS.map(() => ({ st: 'closed' })), bear: null, nextLid: 1, nextBear: 2.5, flash: 0, fx: [], over: false, reason: '' };
+  const say = (x, y, s, c) => m.fx.push({ x, y, s, c, t: 0 });
+  const openBins = () => m.bins.map((b, i) => b.st == 'open' ? i : -1).filter(i => i >= 0);
+  function target(bear) {
+    const open = openBins();
+    bear.target = open.length ? pick(open) : -1;
+    bear.goal = bear.target >= 0 ? BINS[bear.target] : (bear.x < W / 2 ? -30 : W + 30);
+    bear.dir = bear.goal > bear.x ? 1 : -1;
+  }
+  m.update = dt => {
+    m.fx.forEach(f => f.t += dt); m.fx = m.fx.filter(f => f.t < 1);
+    m.flash = Math.max(0, m.flash - dt);
+    if (m.over) return;
+    m.t += dt;
+    // qualche condomino lascia il coperchio aperto
+    if ((m.nextLid -= dt) <= 0) {
+      const closed = m.bins.map((b, i) => b.st == 'closed' ? i : -1).filter(i => i >= 0);
+      if (closed.length) m.bins[pick(closed)].st = 'open';
+      m.nextLid = Math.max(.9, 2.6 - m.t * .03) * rnd(.7, 1.3);
+    }
+    // l'orso arriva dal bosco
+    if (!m.bear && (m.nextBear -= dt) <= 0) {
+      const left = Math.random() < .5;
+      m.bear = { x: left ? -20 : W + 20, dir: left ? 1 : -1, eat: 0, sniff: 0, leaving: false };
+      target(m.bear);
+    }
+    const b = m.bear;
+    if (b) {
+      if (b.eat > 0) {
+        if ((b.eat -= dt) <= 0) { b.leaving = true; b.goal = b.x < W / 2 ? -30 : W + 30; b.dir = b.goal > b.x ? 1 : -1; }
+      } else if (b.sniff > 0) {
+        if ((b.sniff -= dt) <= 0) target(b);
+      } else {
+        b.x += b.dir * (b.leaving ? 30 : 14 + m.t * .2) * dt;
+        if (!b.leaving && b.target >= 0 && Math.abs(b.x - b.goal) < 4) {
+          if (m.bins[b.target].st == 'open') {
+            m.bins[b.target].st = 'mess'; b.eat = 2; m.lives--; m.eaten++;
+            say(b.x, GROUND - 30, L('Gnam!', 'Munch!'), C.r);
+          } else b.sniff = .8;                                  // trova il coperchio chiuso: annusa e cambia idea
+        } else if (!b.leaving && b.target < 0 && openBins().length) target(b);
+        if (b.x < -30 || b.x > W + 30) {
+          if (!b.leaving) { m.score += 20; say(Math.max(20, Math.min(W - 20, b.x)), GROUND - 30, L("Se n'e' andato! +20", 'Gone! +20'), C.g); }
+          m.bear = null; m.nextBear = rnd(1.5, 3);
+        }
+      }
+    }
+    if (!opts.arcade && m.lives <= 0) { m.over = true; m.reason = L("L'orso ha vinto!", 'The bear wins!'); }
+    else if (m.t >= m.dur) {
+      m.over = true; m.success = m.eaten <= 1;
+      m.reason = opts.arcade && m.success ? L('Cortile pulito!', 'Clean yard!') : L('Tempo scaduto!', "Time's up!");
+    }
+  };
+  m.click = (x, y) => {
+    const b = m.bear;
+    // torcia sull'orso: scappa subito
+    if (b && !b.leaving && Math.abs(x - b.x) < 16 && y > GROUND - 22 && y < GROUND + 2) {
+      if (m.torch > 0) {
+        m.torch--; m.flash = .3; b.leaving = true; b.eat = 0; b.sniff = 0;
+        b.goal = b.x < W / 2 ? -30 : W + 30; b.dir = b.goal > b.x ? 1 : -1; m.score += 10;
+        say(b.x, GROUND - 30, L('Sciò! +10', 'Shoo! +10'), C.y);
+      } else say(b.x, GROUND - 30, L('Torcia scarica!', 'Torch is flat!'), C.r);
+      return;
+    }
+    const i = BINS.findIndex(bx => Math.abs(x - bx) < 10 && y > BIN_Y - 14 && y < BIN_Y + 14);
+    if (i >= 0 && m.bins[i].st == 'open') { m.bins[i].st = 'closed'; m.score += 5; say(BINS[i], BIN_Y - 16, '+5', C.g); }
+  };
+  m.draw = () => {
+    drawYard(m.bins);
+    if (m.bear) drawBear(m.bear.x, m.bear.dir, m.t, m.bear.eat > 0);
+    if (m.flash) g.rect('#fff7d660', 0, 0, W, H);
+    m.fx.forEach(f => text(f.s, f.x - F.width(f.s) / 2, f.y - f.t * 10, f.c));
+    g.rect('#0d0f24d0', 0, 0, W, 10);
+    text(L('Punti ', 'Score ') + m.score, 3, 3, C.ink);
+    text(L('Torcia ', 'Torch ') + m.torch, 64, 3, m.torch ? C.y : C.r);
+    for (let k = 0; k < 3; k++) g.rect(!opts.arcade && k >= m.lives ? '#3a3a50' : C.r, 130 + k * 7, 3, 5, 5);
+    const left = Math.max(0, Math.ceil(m.dur - m.t)) + 's';
+    text(left, 236 - F.width(left), 3, m.dur - m.t <= 10 ? C.r : C.dim);
+  };
+  return m;
+}
+
 /* =================== ELENCO MINIGIOCHI =================== */
 const GAMES = [
   { id: 'leak',
@@ -1335,7 +1457,15 @@ const GAMES = [
       "The truck has dropped off the winter firewood and it must be stacked in the cellar. Move the log and click where to drop it: every full row is worth 30 points and frees space. Do not wait too long, the log drops by itself, and if the pile reaches the top it all falls down!"),
     tip: a => a ? L('30 secondi: completa almeno 2 file', '30 seconds: complete at least 2 rows') : L('45 secondi: completa piu file che puoi', '45 seconds: complete as many rows as you can'),
     drawBg: drawCellar, create: makeWood,
-    icon: (cx, cy) => { drawLog(cx - 10, cy + 2, 2, WOOD[0]); drawLog(cx - 5, cy - 6, 1, WOOD[1]); } }
+    icon: (cx, cy) => { drawLog(cx - 10, cy + 2, 2, WOOD[0]); drawLog(cx - 5, cy - 6, 1, WOOD[1]); } },
+  { id: 'bear',
+    title: () => L("L'orso nei bidoni", 'Bear bins'),
+    ring: () => L('Cosa fa quel rumore?', "What's that noise?"),
+    intro: () => L("Di notte un orso del Parco dello Stelvio scende in cortile a frugare nei bidoni. I condomini lasciano sempre i coperchi aperti! Clicca sui bidoni per chiuderli prima che arrivi l'orso. Se proprio serve, clicca sull'orso per spaventarlo con la torcia (3 cariche).",
+      "At night a bear from the Stelvio National Park comes down to the yard to rummage in the bins. The residents always leave the lids open! Click the bins to close them before the bear arrives. If you really must, click the bear to scare it with the torch (3 charges)."),
+    tip: a => a ? L("30 secondi: l'orso puo' mangiare al massimo una volta", '30 seconds: the bear may eat once at most') : L('45 secondi, 3 vite: chiudi i coperchi aperti', '45 seconds, 3 lives: close the open lids'),
+    drawBg: () => drawYard(null), create: makeBear,
+    icon: (cx, cy) => { ell('#5a3a22', cx - 2, cy + 3, 8, 5); ell('#5a3a22', cx + 6, cy, 4, 3); ell('#5a3a22', cx + 4, cy - 3, 1, 1); ell('#a07850', cx + 9, cy + 1, 1, 1); } }
 ];
 
 /* --- avvio --- */
