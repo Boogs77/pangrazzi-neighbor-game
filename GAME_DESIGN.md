@@ -72,7 +72,7 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 - Righe: `MS:` mansarda · `zc:` zoccolo · `ap:` appartamenti della riga sopra (stessa colonna della finestra; `1`–`9`, poi `a`=10, `b`=11 … `l`=21).
 - Un piano terra con P/Q/T è "basso" (alto quanto la porta); F scende fino allo zoccolo; L si attacca al muro dal lato in cui è scritto.
 
-**Appartamenti (21)** — vedi `edificio-appartamenti.png`
+**Appartamenti (20 unità, numeri 1–21 senza l'11)** — vedi `edificio-appartamenti.png`
 | Int. | Dove | Composizione |
 |---|---|---|
 | 1 | B1 pt | ingresso R + F + 6 finestrelle G |
@@ -85,9 +85,9 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 | 8 | B1 pp + Bc ps | 1 + 2 finestre |
 | 9 | Bc ps + B3 ps | 2 + 1 finestre |
 | 10 | B3 ps | 3 finestre |
-| 11 | B1 ps + Bc 3° | 1 + 1 finestre |
-| 12 | Bc 3° | 2 finestre |
-| 13 | Bc 3° + B3 3° | 1 + 4 finestre |
+| ~~11~~ | — | eliminato (numero libero) |
+| 12 | B1 ps + Bc 3° | 1 + 2 finestre |
+| 13 | Bc 3° + B3 3° | 2 + 4 finestre |
 | 14 | mansarda | 1° abbaino |
 | 15 | mansarda | 2° e 3° abbaino |
 | 16 | mansarda | 4° e 5° abbaino |
