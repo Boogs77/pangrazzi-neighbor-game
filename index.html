@@ -3,22 +3,36 @@
 <head>
 <meta charset="utf-8">
 <title>Pangrazzi: The Neighbor Game</title>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <style>
-html, body { margin: 0; height: 100%; background: #0d0f24; }
-body { display: flex; align-items: center; justify-content: center; overflow: hidden; }
-#wrap { position: relative; width: min(100vw, calc(100vh * 240 / 135)); aspect-ratio: 240 / 135; }
-canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; image-rendering: crisp-edges; cursor: pointer; touch-action: manipulation; }
+html, body { margin: 0; height: 100%; background: #0d0f24; overscroll-behavior: none; }
+body { display: flex; align-items: center; justify-content: center; overflow: hidden;
+  -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+/* larghezza e altezza esplicite (non solo aspect-ratio, che alcuni telefoni non supportano) */
+#wrap { position: relative; width: min(100vw, calc(100vh * 240 / 135)); height: min(100vh, calc(100vw * 135 / 240)); }
+@supports (height: 100dvh) {
+  #wrap { width: min(100vw, calc(100dvh * 240 / 135)); height: min(100dvh, calc(100vw * 135 / 240)); }
+}
+canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; image-rendering: crisp-edges; cursor: pointer; touch-action: none; }
 #name { position: absolute; display: none; box-sizing: border-box; padding: 0; outline: none;
   background: #14173a; color: #fff7d6; border: 2px solid #f5c518; font-family: monospace; font-weight: bold;
-  text-transform: uppercase; text-align: center; }
+  text-transform: uppercase; text-align: center; -webkit-user-select: text; user-select: text; }
+/* telefono in verticale: invito a girarlo */
+#rotate { display: none; position: fixed; inset: 0; z-index: 10; background: #0d0f24; color: #f5c518;
+  font: bold 18px/1.5 monospace; text-align: center; padding: 24px; box-sizing: border-box;
+  flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+#rotate span { font-size: 56px; }
+@media (orientation: portrait) and (max-width: 900px) { #rotate { display: flex; } }
 </style>
 </head>
 <body>
 <div id="wrap">
   <canvas id="c" width="1200" height="675"></canvas>
-  <input id="name" maxlength="10" autocomplete="off" spellcheck="false">
+  <input id="name" maxlength="10" autocomplete="off" autocapitalize="characters" spellcheck="false">
 </div>
+<div id="rotate"><span>&#x21bb;</span>Gira il telefono in orizzontale<br>Rotate your phone to landscape</div>
 <script src="facade-data.js"></script>
 <script src="pixel-font.js"></script>
 <script src="admins-art.js"></script>
