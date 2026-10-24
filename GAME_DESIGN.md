@@ -268,25 +268,26 @@ Codice: `admins-art.js` (sprite + schede), `pixel-font.js` (carattere 3×5 compl
 | 4 | Via il fumo! / *Smoke Out* | Appartamenti con caminetti | Il fumo dei camini entra nelle case: **sventola** (clic/trascinamento ripetuto) per spingerlo fuori dalle finestre prima che riempia le stanze. |
 | 5 | Bombole del gas / *Gas Run* | **Spaccato del condominio** (piani e scale in sezione) | Porta giù le bombole vuote, portale a ricaricare, riporta su quelle piene all'appartamento giusto. Da progettare nei dettagli. |
 
-### Proposte di Claude 💡 (da scegliere)
+### Proposte di Claude — scelte ✅
 
 | # | Nome IT / EN | Ambientazione | Meccanica |
 |---|---|---|---|
-| 6 | Spala la neve / *Snow Day* | Marciapiede e ingresso dopo una nevicata | Spala la neve dal portone e dal marciapiede prima che arrivino i condomini; la neve continua a cadere. |
-| 7 | Ghiaccio! / *Black Ice* | Marciapiede in pendenza | Spargi il sale sulle lastre ghiacciate prima che qualcuno scivoli (condomini che scendono la strada). |
-| 8 | La legnaia / *Woodpile* | Cantina | Impila la legna incastrando i ciocchi (mini-Tetris) prima che crolli la catasta. |
-| 9 | Nido di calabroni / *Hornets* | Gronda del tetto | Tieni lontani i calabroni dalle finestre aperte, poi stacca il nido con la scopa. |
-| 10 | L'orso nei bidoni / *Bear Bins* | Cortile di notte | Un orso del Parco dello Stelvio fruga nei bidoni: chiudi i coperchi in tempo e non farti vedere. |
-| 11 | Raccolta differenziata / *Recycling* | Cortile | Trascina i rifiuti nel bidone giusto; più veloce = più punti, errore = multa. |
-| 12 | Grondaie intasate / *Gutters* | Tetto e mansarda | Togli le foglie dalle grondaie prima del temporale, o l'acqua entra in mansarda. |
-| 13 | Panni al sole / *Laundry Rush* | Terrazzi | Arriva la pioggia: ritira i panni stesi prima che si bagnino. |
-| 14 | Assemblea di condominio / *The Meeting* | Androne (parte comune 17) | Rispondi alle lamentele scegliendo la risposta che accontenta la maggioranza. |
-| 15 | Turisti delle Terme / *Lost Tourists* | Strada e negozio Souvenirs | Indica la strada giusta ai turisti che cercano le terme o il negozio. |
+| 6 ✅ | Spala la neve / *Snow Day* | Marciapiede e ingresso dopo una nevicata | Spala la neve dal portone e dal marciapiede prima che arrivino i condomini; la neve continua a cadere. |
+| 7 ✅ | Ghiaccio! / *Black Ice* | Marciapiede in pendenza | Spargi il sale sulle lastre ghiacciate prima che qualcuno scivoli (condomini che scendono la strada). |
+| 8 ✅ | La legnaia / *Woodpile* | Cantina | Impila la legna incastrando i ciocchi (mini-Tetris) prima che crolli la catasta. |
+| ~~9~~ ❌ | ~~Nido di calabroni / *Hornets*~~ | — | scartato |
+| 10 ✅ | L'orso nei bidoni / *Bear Bins* | Cortile di notte | Un orso del Parco dello Stelvio fruga nei bidoni: chiudi i coperchi in tempo e non farti vedere. |
+| 11 ✅ | Raccolta differenziata / *Recycling* | Cortile | Trascina i rifiuti nel bidone giusto; più veloce = più punti, errore = multa. |
+| 12 ✅ | Grondaie intasate / *Gutters* | Tetto e mansarda | Togli le foglie dalle grondaie prima del temporale, o l'acqua entra in mansarda. |
+| 13 ✅ | Panni al sole / *Laundry Rush* | Terrazzi | Arriva la pioggia: ritira i panni stesi prima che si bagnino. |
+| 14 ⭐ | Assemblea di condominio / *The Meeting* | Androne (parte comune 17) | **Minigioco speciale alla fine di ogni turno**: rispondi alle lamentele scegliendo la risposta che accontenta la maggioranza. |
+| 15 ✅ | Turisti delle Terme / *Lost Tourists* | Strada e negozio Souvenirs | Indica la strada giusta ai turisti che cercano le terme o il negozio. |
 
 ### Dal prototipo (già funzionanti, da rivedere)
 Bollette, Ascensore, Chiavi, Citofono — più eventuali Lampadina delle scale, Caldaia, Pacchi.
 
-❓ Quali proposte tenere? Ordine di comparsa? Quali minigiochi sono legati alle **parti comuni** (cantine 18–19, androne 17), dove intervengono tutti?
+✅ Tenute: 6, 7, 8, 10, 11, 12, 13, 15; scartata la 9; la 14 (Assemblea) chiude ogni turno.
+❓ Ordine di comparsa? Quali minigiochi sono legati alle **parti comuni** (cantine 18–19, androne 17), dove intervengono tutti?
 
 ---
 
@@ -299,7 +300,7 @@ Bollette, Ascensore, Chiavi, Citofono — più eventuali Lampadina delle scale, 
 1d. [x] Divisione in appartamenti completata (21, di cui 4 speciali).
 1e. [ ] Portare la facciata v3 nel gioco (finestre cliccabili per appartamento).
 2. [x] Amministratori: 5 aspetti decisi, schermate fatte (testi da definire).
-2b. [ ] Minigiochi: 5 decisi, scegliere tra le proposte (sezione 6); progettare la spiegazione iniziale e la classifica con nome.
+2b. [ ] Minigiochi: lista decisa (sezione 6), Assemblea a fine turno; progettare la spiegazione iniziale e la classifica con nome.
 3. [ ] Rispondere alle decisioni aperte (sezione 3).
 4. [x] Concept in una frase (IT/EN) — sezione 1.
 5. [ ] Pulizia tecnica: titolo, codice inutilizzato, bug di fine turno.
