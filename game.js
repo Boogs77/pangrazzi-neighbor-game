@@ -92,23 +92,24 @@ const adminText = i => lang == 'en' ? ADMIN_EN[i] : AD.ADMINS[i];
 
 /* =================== TITOLO =================== */
 const Title = {
-  enter() { this.t = 0; },
-  update(dt) { this.t += dt; },
   draw() {
     g.rect(C.bg, 0, 0, W, H);
+    center('Pangrazzi', 3, C.y, 3);
+    center('The Neighbor Game', 21, C.ink);
+    g.rect(C.y, 0, 28, W, 1);
+    // il condominio intero e fermo, ridotto alla larghezza dello schermo
     if (bg.complete && bg.naturalWidth) {
+      const w = 200, h = Math.round(w * bg.naturalHeight / bg.naturalWidth), x = (W - w) >> 1;
+      g.rect(C.ink, x - 1, 30, w + 2, h + 2);
+      ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(bg, x, 31, w, h);
       ctx.imageSmoothingEnabled = false;
-      const w = bg.naturalWidth * H / bg.naturalHeight, x = (W - w) / 2 + Math.sin(this.t / 5) * (w - W) / 2;
-      ctx.drawImage(bg, Math.round(x), 0, Math.round(w), H);
     }
-    g.rect('#0d0f24d8', 0, 0, W, 38); g.rect(C.y, 0, 38, W, 1);
-    center('Pangrazzi', 6, C.y, 3);
-    center('The Neighbor Game', 26, C.ink);
-    g.rect('#0d0f24d8', 0, 92, W, 43); g.rect(C.y, 0, 91, W, 1);
+    g.rect(C.y, 0, 106, W, 1);
     F.wrap(L("Sei l'amministratore del Condominio Pangrazzi e devi puntare alla felicita di tutti i condomini.",
       'You are the administrator of the Pangrazzi condominium, and your goal is the happiness of every resident.'), 56)
-      .forEach((l, i) => center(l, 96 + i * 7));
-    button(90, 115, 60, 14, L('Gioca', 'Play'), () => go(Choose));
+      .forEach((l, i) => center(l, 108 + i * 7));
+    button(95, 122, 50, 11, L('Gioca', 'Play'), () => go(Choose));
     button(197, 2, 17, 9, 'IT', () => setLang('it'), lang == 'it' ? C.y : C.dim);
     button(218, 2, 17, 9, 'EN', () => setLang('en'), lang == 'en' ? C.y : C.dim);
   },
