@@ -93,7 +93,7 @@ function fitName() { if (nameBox) nameInput.style.fontSize = Math.max(10, wrap.c
 addEventListener('resize', fitName);
 
 const bg = new Image();
-bg.src = 'reference/edificio.png';
+bg.src = 'reference/edificio.png?v=202610241556';
 
 /* --- testi inglesi degli amministratori (gli italiani sono in admins-art.js) --- */
 const ADMIN_EN = [
@@ -104,6 +104,8 @@ const ADMIN_EN = [
   { name: 'Granny', desc: 'Has known everyone forever and brings a cake to every floor. Impossible to be angry with her.', bonus: 'Mood rises more', malus: 'Moves slowly: less time' }
 ];
 const adminText = i => lang == 'en' ? ADMIN_EN[i] : AD.ADMINS[i];
+// amministratore salvato, sempre un numero valido 0..4
+const adminIndex = () => { const i = Number(store.get('admin', 0)); return i >= 0 && i < 5 ? i | 0 : 0; };
 
 /* =================== TITOLO =================== */
 const Title = {
@@ -127,7 +129,7 @@ const Title = {
 
 /* =================== SCELTA AMMINISTRATORE =================== */
 const Choose = {
-  enter() { this.i = store.get('admin', 0); },
+  enter() { this.i = adminIndex(); },
   move(d) { this.i = (this.i + d + 5) % 5; },
   pick() { store.set('admin', this.i); go(Mode); },
   draw() {
@@ -170,7 +172,7 @@ const Menu = {
     g.rect(C.bg, 0, 0, W, H);
     center(L('Minigiochi', 'Minigames'), 4, C.y);
     g.rect(C.y, 0, 12, W, 1);
-    text(L('Amministratore: ', 'Administrator: ') + adminText(store.get('admin', 0)).name, 6, 16, C.dim);
+    text(L('Amministratore: ', 'Administrator: ') + adminText(adminIndex()).name, 6, 16, C.dim);
     // schede 2 per riga
     GAMES.forEach((gm, k) => {
       const x = 8 + (k % 2) * 116, y = 25 + (k >> 1) * 44, w = 108, h = 40;
@@ -195,7 +197,7 @@ const Mode = {
     g.rect(C.bg, 0, 0, W, H);
     center(L('Come vuoi giocare?', 'How do you want to play?'), 4, C.y);
     g.rect(C.y, 0, 12, W, 1);
-    text(L('Amministratore: ', 'Administrator: ') + adminText(store.get('admin', 0)).name, 6, 16, C.dim);
+    text(L('Amministratore: ', 'Administrator: ') + adminText(adminIndex()).name, 6, 16, C.dim);
     const cards = [
       { t: 'Arcade', d: L('Turni sempre piu difficili: clicca sugli appartamenti che chiedono aiuto e fai felici i condomini.',
           'Harder and harder turns: click the flats that call for help and keep the residents happy.'),
@@ -485,7 +487,7 @@ function drawRoom() {
 }
 
 function makeLeak(opts = {}) {
-  const admin = store.get('admin', 0), HEAD = FLOOR - 100 + 4;
+  const admin = adminIndex(), HEAD = FLOOR - 100 + 4;
   const m = { t: 0, dur: opts.arcade ? 30 : Infinity, success: false, score: 0, closed: 0, level: 0, next: 1, drops: [], fx: [], over: false, reason: '',
     leaks: LEAK_PTS.map(([x, y]) => ({ x, y, on: false })) };
   m.update = dt => {
@@ -685,7 +687,7 @@ function drawMouse(x, y, k = 1, white = false, squash = 0) {
 }
 
 function makeMouse(opts = {}) {
-  const admin = store.get('admin', 0);
+  const admin = adminIndex();
   const m = { t: 0, dur: opts.arcade ? 25 : 40, success: false, score: 0, hits: 0, mice: [], fx: [], next: .6, over: false, reason: '' };
   m.update = dt => {
     m.fx.forEach(f => f.t += dt); m.fx = m.fx.filter(f => f.t < .6);
@@ -862,15 +864,28 @@ const GAMES = [
 setLang(lang);
 go(Title);
 let last = performance.now();
+// un errore non deve bloccare il gioco: lo mostriamo in fondo allo schermo e si continua
+let lastError = '';
+addEventListener('error', e => { lastError = (e.message || 'errore') + ' @' + (e.lineno || '?'); });
 function frame(t) {
+  requestAnimationFrame(frame);
   const dt = Math.min(.05, (t - last) / 1000);
   last = t;
-  scene.update && scene.update(dt);
-  btns = [];
-  ctx.setTransform(S, 0, 0, S, 0, 0);
-  ctx.imageSmoothingEnabled = false;
-  scene.draw();
-  requestAnimationFrame(frame);
+  try {
+    scene.update && scene.update(dt);
+    btns = [];
+    ctx.setTransform(S, 0, 0, S, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    scene.draw();
+  } catch (e) {
+    lastError = String(e && e.message || e) + ' @' + String(e && e.stack || '').split(/\n/).slice(0, 2).join(' ').slice(-60);
+    console.error(e);
+  }
+  if (lastError) {
+    ctx.setTransform(S, 0, 0, S, 0, 0);
+    g.rect('#000000d0', 0, H - 9, W, 9);
+    F.wrap(lastError, 58).slice(0, 1).forEach(l => text(l, 2, H - 7, C.r));
+  }
 }
 requestAnimationFrame(frame);
 })();
