@@ -61,7 +61,7 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 (La "Proposta v2" più sotto e `building-art.js → draw()` sono superate; `building-art.js` resta la libreria dei tipi di finestra/porta.)
 
 **Struttura (da sinistra)**
-- **Blocco 1** (testata): 3 file (ps, pp, pt) × 7 colonne; terrazzi laterali L a sinistra (ps, pp); marcapiano sopra il pt; pt = F + 6 finestrelle G con rastrelliera + 2 A; ingresso esterno R rialzato con 3 gradini, appoggiato al muro; nello zoccolo finestrella H + porticina U.
+- **Blocco 1** (testata): 3 file (ps, pp, pt) × 7 colonne; terrazzi laterali L a sinistra (ps, pp); marcapiano sopra il pt, solo sopra l'appartamento 1 (F + G); pt = F + 6 finestrelle G con rastrelliera + 2 A; ingresso esterno R rialzato con 3 gradini, appoggiato al muro; nello zoccolo finestrella H + porticina U.
 - **Blocco centrale**: 3° piano, ps, pp + piano terra basso con 3 finestrelle H e portone ad arco P.
 - **Blocco 3**: 3° piano, ps, pp + piano terra basso con G G Q(negozio Souvenirs) G; terrazzo laterale L a destra al 3° piano.
 - **Mansarda** unica sui blocchi centrale e 3, con 5 abbaini K equidistanti (l'ultimo spostato di mezza colonna a sinistra).

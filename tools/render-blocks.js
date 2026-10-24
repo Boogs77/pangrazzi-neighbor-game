@@ -132,7 +132,10 @@ function drawAll(blocks) {
     // marcapiano sopra il piano terra del primo blocco (visto nelle foto)
     if (bi == 0) {
       const band = base(b.floors.length - 1) - 19;
-      cv.rect(P.bord, left, band, w, 1); cv.rect(P.brownDark, left, band + 1, w, 2);
+      // finisce dopo le finestre F e G del piano terra (appartamento 1)
+      const fg = b.floors[b.floors.length - 1].items.filter(it => it.k == "F" || it.k == "G");
+      const bw = fg.length ? b.X(fg[fg.length - 1].col + (fg[fg.length - 1].nudge || 0)) + 7 - left : w;
+      cv.rect(P.bord, left, band, bw, 1); cv.rect(P.brownDark, left, band + 1, bw, 2);
     }
   });
 
