@@ -69,10 +69,10 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 **Regole del formato** (oltre alla legenda sotto)
 - Ogni carattere = una colonna (6 px); passo finestre = 4 caratteri.
 - `>` / `<` subito dopo una lettera = mezza colonna a destra / sinistra.
-- Righe: `MS:` mansarda · `zc:` zoccolo · `ap:` appartamenti della riga sopra (stessa colonna della finestra; `1`–`9`, poi `a`=10, `b`=11 … `l`=21).
+- Righe: `MS:` mansarda · `zc:` zoccolo · `ap:` appartamenti della riga sopra (stessa colonna della finestra; `1`–`9`, poi `a`=10, `b`=11 … `k`=20).
 - Un piano terra con P/Q/T è "basso" (alto quanto la porta); F scende fino allo zoccolo; L si attacca al muro dal lato in cui è scritto.
 
-**Appartamenti (20 unità, numeri 1–21 senza l'11)** — vedi `edificio-appartamenti.png`
+**Unità (20)**: 1–16 appartamenti, 17 parte comune, 18–19 cantine, 20 negozio — vedi `edificio-appartamenti.png`
 | Int. | Dove | Composizione |
 |---|---|---|
 | 1 | B1 pt | ingresso R + F + 6 finestrelle G |
@@ -85,19 +85,18 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 | 8 | B1 pp + Bc ps | 1 + 1 finestre |
 | 9 | Bc ps + B3 ps | 3 + 1 finestre |
 | 10 | B3 ps | 3 finestre |
-| ~~11~~ | — | eliminato (numero libero) |
-| 12 | B1 ps + Bc 3° | 1 + 2 finestre |
-| 13 | Bc 3° + B3 3° | 2 + 4 finestre |
-| 14 | mansarda | 1° abbaino |
-| 15 | mansarda | 2° e 3° abbaino |
-| 16 | mansarda | 4° e 5° abbaino |
-| 17 | B3 3° | solo il terrazzo laterale destro |
-| 18 | B3 pt | ⭐ **NEGOZIO Souvenirs**: 3 finestre E (inferriata + gerani) + porta Q (in evidenza nell'immagine) |
-| 19 | zoccolo B1 + pt Bc | 🔧 **CANTINA** (spazio comune): 2 finestrelle H + porticina U — speciale, intervengono tutti (bordo tratteggiato) |
-| 20 | pt Bc | 🔧 **CANTINA** (spazio comune): 2 finestrelle H, senza porta — speciale, intervengono tutti (bordo tratteggiato) |
-| 21 | Bc pp + pt | 🏛️ **PARTE COMUNE**: portone P + finestra sopra (androne/scale) — non è di nessuno ma è oggetto del gioco (bordo tratteggiato) |
+| 11 | B1 ps + Bc 3° | 1 + 2 finestre |
+| 12 | Bc 3° + B3 3° | 2 + 4 finestre |
+| 13 | mansarda | 1° abbaino |
+| 14 | mansarda | 2° e 3° abbaino |
+| 15 | mansarda | 4° e 5° abbaino |
+| 16 | B3 3° | solo il terrazzo laterale destro |
+| 17 | Bc pp + pt | 🏛️ **PARTE COMUNE**: portone P + finestra sopra (androne/scale) — non è di nessuno ma è oggetto del gioco (bordo tratteggiato) |
+| 18 | zoccolo B1 + pt Bc | 🔧 **CANTINA** (spazio comune): 2 finestrelle H + porticina U — speciale, intervengono tutti (bordo tratteggiato) |
+| 19 | pt Bc | 🔧 **CANTINA** (spazio comune): 2 finestrelle H, senza porta — speciale, intervengono tutti (bordo tratteggiato) |
+| 20 | B3 pt | ⭐ **NEGOZIO Souvenirs**: 3 finestre E (inferriata + gerani) + porta Q (in evidenza nell'immagine) |
 
-✅ Tutte le finestre e porte sono assegnate. Speciali: 18 negozio (bordo doppio), 19–20 cantine e 21 parte comune (bordo tratteggiato).
+✅ Tutte le finestre e porte sono assegnate. Speciali: 17 parte comune e 18–19 cantine (bordo tratteggiato), 20 negozio (bordo doppio).
 ✅ Accanto al negozio: finestre **E** (inferriata + gerani).
 
 *Legenda finestre e porte* — `reference/legenda.png`
