@@ -97,7 +97,7 @@ function fitName() { if (nameBox) nameInput.style.fontSize = Math.max(10, wrap.c
 addEventListener('resize', fitName);
 
 const bg = new Image();
-bg.src = 'reference/edificio.png?v=202610241815';
+bg.src = 'reference/edificio.png?v=202610241816';
 
 /* --- testi inglesi degli amministratori (gli italiani sono in admins-art.js) --- */
 const ADMIN_EN = [
@@ -258,6 +258,7 @@ function miniIcon(id, x, y) {
   else if (id == 'wood') { g.rect('#3e2716', x - 4, y - 1, 9, 4); g.rect('#8a5a2e', x - 3, y, 7, 2); g.rect('#d8b080', x - 4, y, 2, 2); }
   else if (id == 'bear') { ell('#5a3a22', x - 1, y + 1, 4, 3); ell('#5a3a22', x + 3, y - 1, 2, 2); }
   else if (id == 'recycle') RBINS.forEach((b, i) => g.rect(b.c, x - 4 + i * 2, y - 2, 2, 5));
+  else if (id == 'gutter') { g.rect('#8a6440', x - 4, y, 9, 2); g.rect('#c87a2a', x - 3, y - 1, 2, 1); g.rect('#d8a030', x + 1, y - 1, 2, 1); g.rect('#6aaaf0', x, y + 3, 1, 2); }
   else if (id == 'snow') { g.rect('#ffffff', x - 3, y, 7, 1); g.rect('#ffffff', x, y - 3, 1, 7); g.rect('#c8d4e4', x - 2, y - 2, 1, 1); g.rect('#c8d4e4', x + 2, y + 2, 1, 1); }
   else { ell('#6a6a74', x, y, 4, 2); ell('#c8c8d0', x - 1, y - 1, 3, 2); ell('#e8e8ee', x + 1, y - 1, 2, 1); }
 }
@@ -1481,6 +1482,78 @@ function makeRecycle(opts = {}) {
   return m;
 }
 
+/* =================== MINIGIOCO 12: GRONDAIE INTASATE =================== */
+const GUT_N = 8, GUT_X = 12, GUT_W = 27, GUT_Y = 76;          // 8 tratti di grondaia sotto il tetto
+const LEAF = ['#c87a2a', '#d8a030', '#a04a20', '#8a6a2a'];
+function drawRoof(segs, rain, t) {
+  g.rect(rain > .5 ? '#5a6474' : '#7a8898', 0, 0, W, H);
+  [[30, 14, 30, 6], [110, 10, 40, 7], [190, 18, 30, 5]].forEach(([x, y, w, h]) => { ell('#4a5464', x, y, w / 2, h); ell('#8a96a4', x - 3, y - 2, w / 3, h / 2); });
+  for (let k = 0; k < 40; k++) g.rect('#2c4a33', 214 + (k % 8) * 3 - (k >> 3), 10 + (k >> 3) * 6, 3, 6);  // albero a destra
+  for (let y = 30; y < GUT_Y; y++) g.rect(((y - 30) / 4 | 0) % 2 ? '#3a3a40' : '#44444c', 6 + (GUT_Y - y) / 3, y, W - 12 - (GUT_Y - y) / 1.5, 1);   // tegole
+  g.rect('#e0b24f', 0, GUT_Y + 6, W, H - GUT_Y - 6);                                       // muro della mansarda
+  [30, 90, 150, 210].forEach(x => { g.rect('#f4f1e8', x - 9, 98, 18, 20); g.rect('#a9cbe0', x - 7, 100, 14, 16); g.rect('#b5332e', x - 12, 98, 3, 20); g.rect('#b5332e', x + 9, 98, 3, 20); });
+  g.rect('#8a6440', GUT_X - 2, GUT_Y, GUT_N * GUT_W + 4, 6); g.rect('#a07850', GUT_X - 2, GUT_Y, GUT_N * GUT_W + 4, 1);   // grondaia
+  if (segs) segs.forEach((s, i) => {
+    const x0 = GUT_X + i * GUT_W;
+    g.rect('#6a4a2a', x0 + GUT_W - 1, GUT_Y, 1, 6);
+    for (let k = 0; k < Math.round(s.leaves * 2.5); k++) g.rect(LEAF[k % 4], x0 + 1 + (k * 7) % (GUT_W - 3), GUT_Y - 1 - ((k * 3) % Math.max(1, Math.round(s.leaves / 2))), 2, 2);
+    if (s.leaves >= 6 && rain > .15) for (let k = 0; k < 4; k++) g.rect('#6aaaf0', x0 + 6 + k * 5, GUT_Y + 6 + ((t * 60 + k * 7) % 22), 1, 3);   // trabocca
+  });
+  if (rain) for (let k = 0; k < rain * 70; k++) g.rect('#c8dcf0a0', (k * 37 + t * 90) % W, (k * 53 + t * 220) % H, 1, 3);
+}
+
+function makeGutter(opts = {}) {
+  const m = { t: 0, dur: opts.arcade ? 30 : 45, success: false, score: 0, damage: 0, rain: 0,
+    segs: Array.from({ length: GUT_N }, () => ({ leaves: rnd(0, 3) })), falling: [], next: .3, fx: [], over: false, reason: '' };
+  function clean(x, amount) {
+    const i = Math.floor((x - GUT_X) / GUT_W), s = m.segs[i];
+    if (!s) return;
+    const d = Math.min(s.leaves, amount);
+    s.leaves -= d; m.score += Math.round(d * 2);
+  }
+  m.update = dt => {
+    m.fx.forEach(f => f.t += dt); m.fx = m.fx.filter(f => f.t < 1);
+    if (m.over) return;
+    m.t += dt;
+    m.rain = Math.min(1, m.t / (m.dur * .6));                     // il temporale arriva piano piano
+    if ((m.next -= dt) <= 0) {                                    // foglie dal vento
+      m.falling.push({ x: rnd(GUT_X, GUT_X + GUT_N * GUT_W), y: rnd(-10, 20), v: rnd(14, 24), c: pick(LEAF) });
+      m.next = Math.max(.1, .26 - m.t * .004);
+    }
+    m.falling.forEach(f => { f.y += f.v * dt; f.x += Math.sin(f.y / 6) * .4; });
+    m.falling = m.falling.filter(f => {
+      if (f.y < GUT_Y - 2) return true;
+      const s = m.segs[Math.floor((f.x - GUT_X) / GUT_W)]; if (s) s.leaves = Math.min(10, s.leaves + 1);
+      return false;
+    });
+    m.segs.forEach(s => { if (s.leaves >= 6) m.damage = Math.min(100, m.damage + (s.leaves - 5) * m.rain * 2.2 * dt); });
+    if (m.damage >= 100) { m.over = true; m.reason = L('Mansarda allagata!', 'Attic flooded!'); }
+    else if (m.t >= m.dur) {
+      m.over = true; m.success = m.damage < 50;
+      m.reason = opts.arcade && m.success ? L('Grondaie pulite!', 'Clean gutters!') : L('Tempo scaduto!', "Time's up!");
+      if (!opts.arcade) m.score += Math.round(100 - m.damage);
+    }
+  };
+  m.click = (x, y) => { if (Math.abs(y - GUT_Y - 2) < 12) clean(x, 4); };
+  let last = null;
+  m.drag = (x, y) => {
+    if (Math.abs(y - GUT_Y - 2) < 12 && last) clean(x, Math.min(3, Math.hypot(x - last[0], y - last[1]) * .25));
+    last = [x, y];
+    clearTimeout(m.lastT); m.lastT = setTimeout(() => last = null, 120);
+  };
+  m.draw = () => {
+    drawRoof(m.segs, m.rain, m.t);
+    m.falling.forEach(f => g.rect(f.c, f.x, f.y, 2, 2));
+    g.rect('#0d0f24d0', 0, 0, W, 10);
+    text(L('Punti ', 'Score ') + m.score, 3, 3, C.ink);
+    text(L('Danni', 'Damage'), 120, 3, C.b);
+    g.rect('#000000', 150, 3, 60, 5); g.rect(m.damage > 60 ? C.r : C.b, 150, 3, 60 * m.damage / 100, 5);
+    const left = Math.max(0, Math.ceil(m.dur - m.t)) + 's';
+    text(left, 236 - F.width(left), 3, m.dur - m.t <= 10 ? C.r : C.dim);
+  };
+  return m;
+}
+
 /* =================== ELENCO MINIGIOCHI =================== */
 const GAMES = [
   { id: 'leak',
@@ -1561,7 +1634,15 @@ const GAMES = [
       "The bin lorry comes today and the residents have thrown everything together. Click a piece of rubbish on the belt, then the right bin: paper, plastic and cans, glass, organic. Every mistake and every item that falls off the belt costs a fine!"),
     tip: a => a ? L('30 secondi: almeno 5 giusti e massimo 2 errori', '30 seconds: at least 5 right, 2 errors max') : L('45 secondi: +10 giusto, -5 errore', '45 seconds: +10 right, -5 error'),
     drawBg: drawRecycle, create: makeRecycle,
-    icon: (cx, cy) => { RBINS.forEach((b, i) => g.rect(b.c, cx - 10 + i * 5, cy - 2, 4, 8)); } }
+    icon: (cx, cy) => { RBINS.forEach((b, i) => g.rect(b.c, cx - 10 + i * 5, cy - 2, 4, 8)); } },
+  { id: 'gutter',
+    title: () => L('Grondaie intasate', 'Clogged gutters'),
+    ring: () => L('Arriva il temporale!', 'Storm coming!'),
+    intro: () => L("Il vento ha riempito di foglie le grondaie e sta arrivando un bel temporale. Se una grondaia e' intasata l'acqua trabocca e finisce in mansarda! Clicca o trascina lungo la grondaia per togliere le foglie prima che la pioggia si faccia forte.",
+      "The wind has filled the gutters with leaves and a big storm is coming. If a gutter is clogged the water overflows into the attic! Click or drag along the gutter to clear the leaves before the rain gets heavy."),
+    tip: a => a ? L('30 secondi: danni sotto il 50%', '30 seconds: keep damage under 50%') : L('45 secondi: clicca o trascina sulla grondaia', '45 seconds: click or drag on the gutter'),
+    drawBg: () => drawRoof(null, 0, 0), create: makeGutter,
+    icon: (cx, cy) => { g.rect('#8a6440', cx - 10, cy, 20, 4); LEAF.forEach((c, i) => g.rect(c, cx - 8 + i * 5, cy - 2, 3, 2)); g.rect('#6aaaf0', cx - 2, cy + 5, 1, 4); g.rect('#6aaaf0', cx + 4, cy + 6, 1, 3); } }
 ];
 
 /* --- avvio --- */
