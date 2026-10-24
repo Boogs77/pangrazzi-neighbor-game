@@ -225,12 +225,27 @@ piano terra:  R
 
 ---
 
-## 5. Amministratori giocabili (proposta)
+## 5. Amministratori giocabili ✅ (5)
 
-Ogni amministratore ha un **bonus** e un **malus** che cambiano il modo di giocare. Nomi IT / EN.
+Schermata di scelta:  …  (rigenera con scritto C:UsersMarcoDocumentsClaudePangrazziGameeferenceadmin-1.png
+scritto C:UsersMarcoDocumentsClaudePangrazziGameeferenceadmin-2.png
+scritto C:UsersMarcoDocumentsClaudePangrazziGameeferenceadmin-3.png
+scritto C:UsersMarcoDocumentsClaudePangrazziGameeferenceadmin-4.png
+scritto C:UsersMarcoDocumentsClaudePangrazziGameeferenceadmin-5.png).
+Sprite alti ~100 px (3/4 dello schermo 240×135) a sinistra; a destra nome, descrizione, bonus, malus,  e tasto SCEGLI.
+Codice:  (sprite + schede),  (carattere 3×5 completo).
 
-| Tipo | Bonus | Malus |
-|------|-------|-------|
+| # | Aspetto (deciso) | Nome (bozza) | Bonus (bozza) | Malus (bozza) |
+|---|---|---|---|---|
+| 1 | Anziano, calvo con capelli bianchi solo vicino alle orecchie, occhiali, giacca e cravatta, sovrappeso | Il Ragioniere | Bollette e conti più facili | Lento nelle riparazioni |
+| 2 | Giovane, moro, camicia e jeans | Il Giovane | Più tempo per ogni problema | L'umore cala più in fretta |
+| 3 | Donna bionda vestita elegante | L'Avvocata | Liti e assemblee più facili | Odia sporcarsi le mani |
+| 4 | Montanaro di mezza età (cappello alpino, barba, camicia a quadri, gilet, calzettoni) | Il Montanaro | Riparazioni più facili | Odia la burocrazia |
+| 5 | Nonna anziana (crocchia grigia, occhiali, golfino, gonna lunga, bastone) | La Nonna | L'umore sale di più | Si muove piano: meno tempo |
+
+❓ Nomi, descrizioni, bonus e malus sono **bozze**: da sostituire con i testi dell'utente.
+
+------|-------|-------|
 | **Il Pignolo** / *The Stickler* | Minigiochi di conti (bollette, preventivi) con più tempo | Umore dei condomini cresce più lentamente |
 | **Il Simpatico** / *The Charmer* | Umore cala meno quando sbagli | Guadagna meno euro per problema |
 | **Il Tuttofare** / *The Handyman* | Minigiochi di riparazione (perdite, ascensore, lampadine) più facili | Minigiochi burocratici più difficili |
@@ -280,7 +295,8 @@ Categorie: 🔧 riparazione · 📋 burocrazia · 🧑‍🤝‍🧑 condomini �
 1c. [x] Facciata v3 disegnata da `reference/edificio.md` (3 blocchi, pendenza, mansarda).
 1d. [x] Divisione in appartamenti completata (21, di cui 4 speciali).
 1e. [ ] Portare la facciata v3 nel gioco (finestre cliccabili per appartamento).
-2. [ ] Scegliere gli amministratori (sezione 5) e i minigiochi (sezione 6).
+2. [x] Amministratori: 5 aspetti decisi, schermate fatte (testi da definire).
+2b. [ ] Scegliere i minigiochi (sezione 6).
 3. [ ] Rispondere alle decisioni aperte (sezione 3).
 4. [x] Concept in una frase (IT/EN) — sezione 1.
 5. [ ] Pulizia tecnica: titolo, codice inutilizzato, bug di fine turno.
