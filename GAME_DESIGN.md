@@ -258,7 +258,7 @@ Codice: `admins-art.js` (sprite + schede), `pixel-font.js` (carattere 3×5 compl
 - Dopo la scelta dell'amministratore: **Arcade** oppure **Minigiochi** (scelta libera, per allenarsi).
 - **Arcade**: turni sul condominio; gli appartamenti con un problema lampeggiano e si clicca su di loro per avviare il minigioco. Turno 1 = 2 minigiochi, poi +2 ogni turno. Punteggio totale + bonus felicità a fine turno, record con nome. Felicità a 0 = sfrattato.
 - In arcade i minigiochi sono brevi e dicono se il problema è **risolto** (felicità +10) o no (−10); un problema ignorato fino alla scadenza vale −15.
-- Implementato: turno 1 (Perdita d'acqua, Raccolta funghi) turno 2 (+ Caccia ai topi, Via il fumo!) e turno 3 (+ Bombole del gas, Spala la neve). Da fare: turni successivi, Assemblea a fine turno, bonus/malus degli amministratori.
+- Implementato: **tutti i 13 minigiochi** e 7 turni arcade (2 minigiochi nuovi per turno, l'ultimo +1). Da fare: Assemblea a fine turno (14), bonus/malus degli amministratori.
 
 ### Regole comuni a tutti i minigiochi ✅
 - **Prima di partire**: una schermata con una **spiegazione simpatica** (chi chiama, cosa succede, come si gioca) e un tasto VIA.
@@ -274,7 +274,7 @@ Codice: `admins-art.js` (sprite + schede), `pixel-font.js` (carattere 3×5 compl
 | 4 | Via il fumo! / *Smoke Out* | Appartamenti con caminetti | Il fumo dei camini entra nelle case: **sventola** (clic/trascinamento ripetuto) per spingerlo fuori dalle finestre prima che riempia le stanze. |
 | 5 | Bombole del gas / *Gas Run* | **Spaccato del condominio** (piani e scale in sezione) | Porta giù le bombole vuote, portale a ricaricare, riporta su quelle piene all'appartamento giusto. Da progettare nei dettagli. |
 
-### Proposte di Claude — scelte ✅
+### Proposte di Claude — scelte e implementate ✅
 
 | # | Nome IT / EN | Ambientazione | Meccanica |
 |---|---|---|---|

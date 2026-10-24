@@ -97,7 +97,7 @@ function fitName() { if (nameBox) nameInput.style.fontSize = Math.max(10, wrap.c
 addEventListener('resize', fitName);
 
 const bg = new Image();
-bg.src = 'reference/edificio.png?v=202610241818';
+bg.src = 'reference/edificio.png?v=202610241820';
 
 /* --- testi inglesi degli amministratori (gli italiani sono in admins-art.js) --- */
 const ADMIN_EN = [
@@ -189,7 +189,7 @@ const Menu = {
       btns.push({ x, y, w, h, fn: () => go(Intro, gm) });
     });
     const more = 13 - GAMES.length, ms = L('+' + more + ' in arrivo', '+' + more + ' coming');
-    text(ms, 234 - F.width(ms), 16, C.dim);
+    if (more > 0) text(ms, 234 - F.width(ms), 16, C.dim);
     button(8, 119, 112, 12, L('Cambia amministratore', 'Change administrator'), () => go(Choose), C.pan, C.ink);
     button(180, 119, 52, 12, L('Indietro', 'Back'), () => go(Mode), C.pan, C.ink);
   },
@@ -232,7 +232,8 @@ const TURNS = [
   { games: ['leak', 'mush', 'mouse', 'smoke', 'gas', 'snow'], dur: 100, every: [4, 7], max: 3, deadline: 20 },
   { games: ['leak', 'mush', 'mouse', 'smoke', 'gas', 'snow', 'ice', 'wood'], dur: 110, every: [4, 6], max: 3, deadline: 20 },
   { games: ['leak', 'mush', 'mouse', 'smoke', 'gas', 'snow', 'ice', 'wood', 'bear', 'recycle'], dur: 120, every: [3.5, 6], max: 4, deadline: 20 },
-  { games: ['leak', 'mush', 'mouse', 'smoke', 'gas', 'snow', 'ice', 'wood', 'bear', 'recycle', 'gutter', 'laundry'], dur: 130, every: [3, 5.5], max: 4, deadline: 18 }
+  { games: ['leak', 'mush', 'mouse', 'smoke', 'gas', 'snow', 'ice', 'wood', 'bear', 'recycle', 'gutter', 'laundry'], dur: 130, every: [3, 5.5], max: 4, deadline: 18 },
+  { games: ['leak', 'mush', 'mouse', 'smoke', 'gas', 'snow', 'ice', 'wood', 'bear', 'recycle', 'gutter', 'laundry', 'tourists'], dur: 140, every: [3, 5], max: 4, deadline: 18 }
 ];
 const FY = 14;                                       // la facciata parte sotto la barra in alto
 const fs_ = () => W / FACADE.w;                      // scala facciata -> schermo
@@ -261,6 +262,7 @@ function miniIcon(id, x, y) {
   else if (id == 'recycle') RBINS.forEach((b, i) => g.rect(b.c, x - 4 + i * 2, y - 2, 2, 5));
   else if (id == 'gutter') { g.rect('#8a6440', x - 4, y, 9, 2); g.rect('#c87a2a', x - 3, y - 1, 2, 1); g.rect('#d8a030', x + 1, y - 1, 2, 1); g.rect('#6aaaf0', x, y + 3, 1, 2); }
   else if (id == 'laundry') { g.rect('#f4f4f4', x - 4, y - 3, 9, 1); g.rect('#d04040', x - 3, y - 2, 3, 4); g.rect('#3a6ad0', x + 1, y - 2, 3, 5); }
+  else if (id == 'tourists') { ell('#f0c6a0', x, y - 2, 2, 2); g.rect('#d04040', x - 2, y + 1, 5, 4); g.rect('#f5c518', x - 3, y - 4, 7, 1); }
   else if (id == 'snow') { g.rect('#ffffff', x - 3, y, 7, 1); g.rect('#ffffff', x, y - 3, 1, 7); g.rect('#c8d4e4', x - 2, y - 2, 1, 1); g.rect('#c8d4e4', x + 2, y + 2, 1, 1); }
   else { ell('#6a6a74', x, y, 4, 2); ell('#c8c8d0', x - 1, y - 1, 3, 2); ell('#e8e8ee', x + 1, y - 1, 2, 1); }
 }
@@ -1642,6 +1644,105 @@ function makeLaundry(opts = {}) {
   return m;
 }
 
+/* =================== MINIGIOCO 15: TURISTI DELLE TERME =================== */
+// i turisti chiedono una meta in italiano, inglese o tedesco; si risponde con il pulsante giusto
+const DEST = [
+  { k: 'terme', it: 'Terme', en: 'Spa', ask: ['Terme?', 'Spa?', 'Therme?', 'Bagni?'] },
+  { k: 'shop', it: 'Souvenir', en: 'Souvenirs', ask: ['Souvenir?', 'Gift shop?', 'Andenken?', 'Regali?'] },
+  { k: 'bus', it: 'Autobus', en: 'Bus', ask: ['Autobus?', 'Bus stop?', 'Haltestelle?', 'Pullman?'] },
+  { k: 'falls', it: 'Cascate', en: 'Waterfalls', ask: ['Cascate?', 'Waterfall?', 'Wasserfall?', 'Sentiero?'] }
+];
+const DBX = i => 6 + i * 58, DBY = 110;
+function destIcon(k, x, y) {
+  if (k == 'terme') { ell('#4fa8ff', x, y + 2, 4, 2); for (let i = -2; i <= 2; i += 2) g.rect('#f4f4f4', x + i, y - 4 + Math.abs(i), 1, 3); }
+  else if (k == 'shop') { g.rect('#d04040', x - 4, y - 2, 8, 6); g.rect('#f5c518', x - 1, y - 2, 2, 6); g.rect('#f5c518', x - 4, y, 8, 1); }
+  else if (k == 'bus') { g.rect('#2f6fd0', x - 5, y - 3, 10, 6); g.rect('#a9cbe0', x - 4, y - 2, 3, 2); g.rect('#a9cbe0', x + 1, y - 2, 3, 2); g.rect('#1a1420', x - 3, y + 3, 2, 1); g.rect('#1a1420', x + 2, y + 3, 2, 1); }
+  else { g.rect('#5d7a6a', x - 5, y - 4, 4, 9); g.rect('#5d7a6a', x + 2, y - 4, 4, 9); g.rect('#9fd4ff', x - 1, y - 4, 3, 9); }
+}
+function drawTouristStreet() {
+  g.rect('#9ec6e6', 0, 0, W, 40);
+  for (let x = 0; x < W; x++) g.rect('#5d7a6a', x, 18 + Math.round(6 * Math.sin(x / 19)), 1, 30);
+  g.rect('#e0b24f', 0, 34, W, 54);
+  for (let x = 8; x < W; x += 30) { g.rect('#b5332e', x, 42, 3, 12); g.rect('#a9cbe0', x + 3, 42, 10, 12); g.rect('#b5332e', x + 13, 42, 3, 12); }
+  g.rect('#7a5230', 150, 60, 40, 8); text('SOUVENIRS', 152, 62, '#fff7d6');
+  g.rect('#a39886', 0, 88, W, 18); g.rect('#55575c', 0, 104, W, 2);
+  g.rect('#777', 22, 64, 1, 28); g.rect('#2f6fd0', 18, 60, 9, 7);                              // fermata del bus
+  DEST.forEach((d, i) => {
+    g.rect(C.ink, DBX(i) - 1, DBY - 1, 54, 22); g.rect(C.panD, DBX(i), DBY, 52, 20);
+    destIcon(d.k, DBX(i) + 9, DBY + 10);
+    text(L(d.it, d.en), DBX(i) + 17, DBY + 8, C.y);
+  });
+}
+function drawTourist(x, col, hat, t) {
+  const y = 101, st = (t * 6 | 0) % 2;
+  g.rect('#2a2a30', x - 3 + st, y - 6, 2, 6); g.rect('#2a2a30', x + 1 - st, y - 6, 2, 6);
+  g.rect(col, x - 3, y - 15, 7, 9); g.rect('#7a5230', x + 3, y - 14, 3, 6);                    // zaino
+  ell('#f0c6a0', x, y - 18, 3, 3);
+  if (hat) { g.rect('#f5c518', x - 4, y - 21, 9, 1); g.rect('#f5c518', x - 2, y - 23, 5, 2); }
+  g.rect('#1a1420', x - 4, y - 12, 2, 2);                                                      // macchina fotografica
+}
+
+function makeTourists(opts = {}) {
+  const m = { t: 0, dur: opts.arcade ? 30 : 45, success: false, score: 0, ok: 0, bad: 0, queue: [], gone: [], next: .3, fx: [], over: false, reason: '' };
+  const say = (x, y, s, c) => m.fx.push({ x, y, s, c, t: 0 });
+  const spawn = () => {
+    const d = Math.random() * 4 | 0;
+    m.queue.push({ x: W + 10, d, ask: pick(DEST[d].ask), col: pick(['#d04040', '#3e8a4a', '#c060c0', '#2f6fd0', '#f08030']), hat: Math.random() < .5, patience: 0, max: Math.max(3, 6 - m.t * .06) });
+  };
+  m.update = dt => {
+    m.fx.forEach(f => f.t += dt); m.fx = m.fx.filter(f => f.t < 1);
+    m.gone.forEach(p => p.x += p.dir * 40 * dt); m.gone = m.gone.filter(p => p.x > -10 && p.x < W + 10);
+    if (m.over) return;
+    m.t += dt;
+    if ((m.next -= dt) <= 0) { if (m.queue.length < 5) spawn(); m.next = Math.max(1.2, 2.6 - m.t * .03) * rnd(.8, 1.2); }
+    // la fila avanza verso il punto informazioni al centro
+    m.queue.forEach((p, i) => { const goal = 110 + i * 22; p.x = Math.max(goal, p.x - 50 * dt); });
+    const p = m.queue[0];
+    if (p && p.x <= 111) {
+      p.patience += dt;
+      if (p.patience >= p.max) {
+        m.queue.shift(); m.bad++; m.score = Math.max(0, m.score - 5);
+        m.gone.push({ ...p, dir: 1 }); say(110, 66, L('Che maleducati! -5', 'How rude! -5'), C.r);
+      }
+    }
+    if (m.t >= m.dur) {
+      m.over = true; m.success = m.ok >= 6 && m.bad <= 2;
+      m.reason = opts.arcade && m.success ? L('Turisti felici!', 'Happy tourists!') : L('Tempo scaduto!', "Time's up!");
+    }
+  };
+  m.click = (x, y) => {
+    const i = DEST.findIndex((d, k) => x >= DBX(k) && x < DBX(k) + 52 && y >= DBY && y < DBY + 20);
+    const p = m.queue[0];
+    if (i < 0 || !p || p.x > 111) return;
+    m.queue.shift();
+    if (i == p.d) {
+      const bonus = Math.max(0, Math.round((p.max - p.patience) * 2));
+      m.ok++; m.score += 10 + bonus; say(110, 66, L('Grazie! +', 'Thanks! +') + (10 + bonus), C.g);
+      m.gone.push({ ...p, dir: i == 2 ? -1 : 1 });
+    } else { m.bad++; m.score = Math.max(0, m.score - 5); say(110, 66, L('Ma dove mi manda? -5', 'Where am I going? -5'), C.r); m.gone.push({ ...p, dir: -1 }); }
+  };
+  m.draw = () => {
+    drawTouristStreet();
+    [...m.queue].reverse().forEach(p => drawTourist(p.x, p.col, p.hat, m.t));
+    m.gone.forEach(p => drawTourist(p.x, p.col, p.hat, m.t));
+    const p = m.queue[0];
+    if (p && p.x <= 111) {                                                     // fumetto con la domanda
+      const w = F.width(p.ask) + 8;
+      g.rect('#1a1420', 110 - w / 2 - 1, 69, w + 2, 11); g.rect('#ffffff', 110 - w / 2, 70, w, 9); g.rect('#ffffff', 110, 79, 2, 3);
+      text(p.ask, 110 - w / 2 + 4, 72, '#1a1420');
+      const f = 1 - p.patience / p.max;
+      g.rect('#000000', 98, 82, 24, 2); g.rect(f > .4 ? C.g : C.r, 98, 82, 24 * f, 2);
+    }
+    m.fx.forEach(f => text(f.s, f.x - F.width(f.s) / 2, f.y - 14 - f.t * 10, f.c));
+    g.rect('#0d0f24d0', 0, 0, W, 10);
+    text(L('Punti ', 'Score ') + m.score, 3, 3, C.ink);
+    text(L('Aiutati ', 'Helped ') + m.ok, 64, 3, C.g); text(L('Errori ', 'Errors ') + m.bad, 132, 3, m.bad ? C.r : C.dim);
+    const left = Math.max(0, Math.ceil(m.dur - m.t)) + 's';
+    text(left, 236 - F.width(left), 3, m.dur - m.t <= 10 ? C.r : C.dim);
+  };
+  return m;
+}
+
 /* =================== ELENCO MINIGIOCHI =================== */
 const GAMES = [
   { id: 'leak',
@@ -1738,7 +1839,15 @@ const GAMES = [
       "The ladies have hung their washing on the balconies, but rain clouds are coming from the left. Clothes need sun to dry: collect them when the bar is green (+10). Before the cloud arrives, take in the damp ones too, or they get soaked!"),
     tip: a => a ? L('30 secondi: almeno 4 asciutti e max 1 fradicio', '30 seconds: 4 dry, 1 soaked max') : L('45 secondi: clicca sui panni per raccoglierli', '45 seconds: click the clothes to take them in'),
     drawBg: drawBalconies, create: makeLaundry,
-    icon: (cx, cy) => { g.rect('#f4f4f4', cx - 10, cy - 6, 20, 1); drawCloth(cx - 5, cy - 4, 0, '#d04040', 0); drawCloth(cx + 6, cy - 4, 2, '#3a6ad0', 0); } }
+    icon: (cx, cy) => { g.rect('#f4f4f4', cx - 10, cy - 6, 20, 1); drawCloth(cx - 5, cy - 4, 0, '#d04040', 0); drawCloth(cx + 6, cy - 4, 2, '#3a6ad0', 0); } },
+  { id: 'tourists',
+    title: () => L('Turisti delle Terme', 'Lost tourists'),
+    ring: () => L('Scusi, dove...?', 'Excuse me, where...?'),
+    intro: () => L("D'estate Bagni di Rabbi si riempie di turisti che cercano le Terme, il negozio di souvenir, la fermata dell'autobus o le cascate. Ti chiedono la strada in italiano, inglese e tedesco: tocca la meta giusta prima che perdano la pazienza. Piu sei veloce, piu punti fai!",
+      "In summer Bagni di Rabbi fills up with tourists looking for the Spa, the souvenir shop, the bus stop or the waterfalls. They ask the way in Italian, English and German: tap the right destination before they lose patience. The faster you are, the more points you get!"),
+    tip: a => a ? L('30 secondi: aiutane 6, massimo 2 errori', '30 seconds: help 6, 2 errors max') : L('45 secondi: Therme = Terme, Wasserfall = Cascate', '45 seconds: Therme = Spa, Wasserfall = Waterfall'),
+    drawBg: drawTouristStreet, create: makeTourists,
+    icon: (cx, cy) => { drawTourist(cx, '#d04040', true, 0); } }
 ];
 
 /* --- avvio --- */
