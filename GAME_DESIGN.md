@@ -76,7 +76,7 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 **Appartamenti (20)** — vedi `edificio-appartamenti.png`
 | Int. | Dove | Composizione |
 |---|---|---|
-| 1 | B1 pt | F + 6 finestrelle G |
+| 1 | B1 pt | ingresso R + F + 6 finestrelle G |
 | 2 | B1 pp | terrazzo L + 3 finestre |
 | 3 | B1 pp | 3 finestre |
 | 4 | B1 ps | terrazzo L + 3 finestre |
@@ -94,8 +94,8 @@ Legenda: ✅ deciso · ❓ da decidere · 💡 idea da valutare
 | 16 | mansarda | 4° e 5° abbaino |
 | 17 | B3 3° | solo il terrazzo laterale destro |
 | 18 | B3 pt | ⭐ **NEGOZIO Souvenirs**: 3 finestrelle G + porta Q (in evidenza nell'immagine) |
-| 19 | zoccolo B1 | 🔧 **CANTINA** (spazio comune): finestrella H + porticina U — speciale, intervengono tutti (bordo tratteggiato) |
-| 20 | pt Bc | 🔧 **CANTINA** (spazio comune): 3 finestrelle H + porticina U — speciale, intervengono tutti (bordo tratteggiato) |
+| 19 | zoccolo B1 + pt Bc | 🔧 **CANTINA** (spazio comune): 2 finestrelle H + porticina U — speciale, intervengono tutti (bordo tratteggiato) |
+| 20 | pt Bc | 🔧 **CANTINA** (spazio comune): 2 finestrelle H + porticina U — speciale, intervengono tutti (bordo tratteggiato) |
 
 ❓ **Da assegnare**: solo la finestra sopra il portone (Bc pp).
 ❓ Le finestrelle G accanto al negozio (blocco 3) sono davvero G o E (inferriata + gerani)?
