@@ -97,7 +97,7 @@ function fitName() { if (nameBox) nameInput.style.fontSize = Math.max(10, wrap.c
 addEventListener('resize', fitName);
 
 const bg = new Image();
-bg.src = 'reference/edificio.png?v=202610241602';
+bg.src = 'reference/edificio.png?v=202610241619';
 
 /* --- testi inglesi degli amministratori (gli italiani sono in admins-art.js) --- */
 const ADMIN_EN = [
@@ -179,16 +179,16 @@ const Menu = {
     text(L('Amministratore: ', 'Administrator: ') + adminText(adminIndex()).name, 6, 16, C.dim);
     // schede 2 per riga
     GAMES.forEach((gm, k) => {
-      const x = 8 + (k % 2) * 116, y = 25 + (k >> 1) * 44, w = 108, h = 40;
+      const x = 8 + (k % 2) * 116, y = 25 + (k >> 1) * 31, w = 108, h = 28;
       panel(x, y, w, h);
-      gm.icon(x + 14, y + 22);
-      text(gm.title(), x + 30, y + 5, C.y);
+      gm.icon(x + 13, y + 14);
+      text(gm.title(), x + 28, y + 3, C.y);
       const best = records(gm.id)[0];
-      text(best ? L('Rec. ', 'Best ') + best.name.slice(0, 7) + ' ' + best.score : L('Nessun record', 'No record yet'), x + 30, y + 14, C.dim);
-      button(x + 30, y + 25, 50, 11, L('Gioca', 'Play'), () => go(Intro, gm));
+      text(best ? L('Rec. ', 'Best ') + best.name.slice(0, 7) + ' ' + best.score : L('Nessun record', 'No record yet'), x + 28, y + 10, C.dim);
+      button(x + 28, y + 17, 44, 9, L('Gioca', 'Play'), () => go(Intro, gm));
     });
-    const more = 13 - GAMES.length;
-    center(L('Altri ' + more + ' minigiochi in arrivo...', more + ' more minigames coming soon...'), 112, C.dim);
+    const more = 13 - GAMES.length, ms = L('+' + more + ' in arrivo', '+' + more + ' coming');
+    text(ms, 234 - F.width(ms), 16, C.dim);
     button(8, 119, 112, 12, L('Cambia amministratore', 'Change administrator'), () => go(Choose), C.pan, C.ink);
     button(180, 119, 52, 12, L('Indietro', 'Back'), () => go(Mode), C.pan, C.ink);
   },
@@ -227,7 +227,8 @@ const Mode = {
 // ogni turno aggiunge 2 minigiochi; per ora esiste solo il primo
 const TURNS = [
   { games: ['leak', 'mush'], dur: 75, every: [6, 10], max: 2, deadline: 25 },
-  { games: ['leak', 'mush', 'mouse', 'smoke'], dur: 90, every: [5, 8], max: 3, deadline: 22 }
+  { games: ['leak', 'mush', 'mouse', 'smoke'], dur: 90, every: [5, 8], max: 3, deadline: 22 },
+  { games: ['leak', 'mush', 'mouse', 'smoke', 'gas', 'snow'], dur: 100, every: [4, 7], max: 3, deadline: 20 }
 ];
 const FY = 14;                                       // la facciata parte sotto la barra in alto
 const fs_ = () => W / FACADE.w;                      // scala facciata -> schermo
@@ -249,6 +250,8 @@ function miniIcon(id, x, y) {
   if (id == 'leak') { ell('#1a1420', x, y + 1, 3, 3); ell('#4fa8ff', x, y + 1, 2, 2); g.rect('#4fa8ff', x, y - 3, 1, 2); }
   else if (id == 'mush') drawMush('p', x, y + 3, .4);
   else if (id == 'mouse') drawMouse(x - 1, y + 3, .5);
+  else if (id == 'gas') drawBombola(x, y + 4, true);
+  else if (id == 'snow') { g.rect('#ffffff', x - 3, y, 7, 1); g.rect('#ffffff', x, y - 3, 1, 7); g.rect('#c8d4e4', x - 2, y - 2, 1, 1); g.rect('#c8d4e4', x + 2, y + 2, 1, 1); }
   else { ell('#6a6a74', x, y, 4, 2); ell('#c8c8d0', x - 1, y - 1, 3, 2); ell('#e8e8ee', x + 1, y - 1, 2, 1); }
 }
 const GAME = id => GAMES.find(gm => gm.id == id);
@@ -403,7 +406,10 @@ const Intro = {
 
 /* =================== PARTITA =================== */
 const Play = {
-  enter(gm, actx) { this.gm = gm; this.actx = actx; this.m = gm.create({ arcade: !!actx }); this.endT = 0; },
+  enter(gm, actx) {
+    this.gm = gm; this.actx = actx; this.m = gm.create({ arcade: !!actx }); this.endT = 0;
+    if (/[?&]debug/.test(location.search)) window.__m = this.m;   // ?debug: stato del minigioco leggibile dalla console
+  },
   update(dt) {
     this.m.update(dt);
     if (this.m.over && (this.endT += dt) > 1.6)
@@ -829,6 +835,238 @@ function makeSmoke(opts = {}) {
   return m;
 }
 
+/* =================== MINIGIOCO 5: BOMBOLE DEL GAS =================== */
+// spaccato del condominio: 4 piani (0 = 3° piano, 3 = piano terra), scala al centro, furgone in strada
+const GF = [14, 42, 70, 98], FH = 28, STAIR = [104, 126], VAN = [204, 104, 34, 22];
+const gasFloorY = f => GF[f] + FH - 2;          // quota del pavimento del piano f
+function drawBombola(x, y, full) {              // (x,y) = base al centro
+  g.rect('#1a1420', x - 3, y - 9, 6, 9);
+  g.rect(full ? '#e86a20' : '#9aa0a8', x - 2, y - 8, 4, 8);
+  g.rect(full ? '#ffa060' : '#c8ccd0', x - 2, y - 8, 1, 7);
+  g.rect('#3a3a40', x - 1, y - 10, 2, 2);
+}
+function drawSection(m) {
+  g.rect('#9ec6e6', 0, 0, W, H);
+  g.rect('#55575c', 0, 126, W, H - 126); g.rect('#a39886', 0, 124, W, 3);
+  g.rect('#3a3a40', 14, 6, 192, 6);                                     // tetto
+  g.rect('#c99a3c', 16, 12, 188, 114);                                  // muri esterni
+  GF.forEach((y, f) => {
+    // stanze e vano scala
+    g.rect('#f0e2c0', 20, y + 1, 82, FH - 3);
+    if (!(f == 3)) g.rect('#e8d8c8', 128, y + 1, 74, FH - 3); else g.rect('#d8cfb8', 128, y + 1, 74, FH - 3);
+    g.rect('#d8cfb8', STAIR[0], y + 1, STAIR[1] - STAIR[0], FH - 3);
+    for (let k = 0; k < 7; k++) g.rect('#b8ae98', STAIR[0] + 2 + k * 3, y + FH - 4 - k * 3, 4, 1);   // gradini
+    g.rect('#8a7a62', 16, y + FH - 2, 188, 2);                          // solaio
+    // porte verso la scala e finestre sul lato esterno
+    g.rect('#7a5230', 96, y + 9, 6, FH - 11); g.rect('#7a5230', 128, y + 9, 6, FH - 11);
+    g.rect('#f4f1e8', 26, y + 6, 12, 10); g.rect('#a9cbe0', 27, y + 7, 10, 8);
+    g.rect('#f4f1e8', 186, y + 6, 12, 10); g.rect('#a9cbe0', 187, y + 7, 10, 8);
+    g.rect('#7a5230', 50, y + 16, 18, 2); g.rect('#5a3a22', 52, y + 18, 2, 6); g.rect('#5a3a22', 64, y + 18, 2, 6);  // tavolo
+  });
+  text(L('Androne', 'Hall'), 146, GF[3] + 10, '#8a7a62');
+  // furgone del gas
+  const [vx, vy, vw, vh] = VAN;
+  g.rect('#1a1420', vx - 1, vy - 1, vw + 2, vh - 3); g.rect('#f4f4f4', vx, vy, vw, vh - 5);
+  g.rect('#a9cbe0', vx + vw - 9, vy + 3, 7, 6); g.rect('#e86a20', vx + 2, vy + 9, vw - 14, 5);
+  text('GAS', vx + 4, vy + 3, '#e86a20');
+  ell('#1a1420', vx + 7, vy + vh - 3, 3, 3); ell('#1a1420', vx + vw - 7, vy + vh - 3, 3, 3);
+}
+
+function makeGas(opts = {}) {
+  const apts = [];
+  for (let f = 0; f < 4; f++) for (let side = 0; side < 2; side++) {
+    if (f == 3 && side == 1) continue;                                   // a destra del piano terra c'è l'androne
+    apts.push({ f, side, x: side ? 128 : 20, w: side ? 74 : 82, st: 'ok', left: 0, total: 1 });
+  }
+  const m = { apts, t: 0, dur: opts.arcade ? 35 : Infinity, success: false, score: 0, lives: 3, delivered: 0,
+    cart: { f: 3, target: null }, load: [], next: 1.2, fx: [], over: false, reason: '' };
+  const say = (x, y, s, c) => m.fx.push({ x, y, s, c, t: 0 });
+  function arrive(tg) {
+    if (tg.van) {
+      const n = m.load.filter(b => b == 'E').length;
+      if (n) { m.load = m.load.map(() => 'F'); m.score += 2 * n; say(VAN[0] + 17, VAN[1] - 4, L('Ricaricate!', 'Refilled!'), C.g); }
+      return;
+    }
+    const a = tg.apt;
+    if (a.st == 'waiting' && m.load.includes('F')) {
+      m.load.splice(m.load.indexOf('F'), 1);
+      a.st = 'ok'; m.delivered++;
+      const p = 20 + Math.ceil(a.left);
+      m.score += p; say(a.x + a.w / 2, GF[a.f] + 4, '+' + p, C.g);
+    } else if (a.st == 'empty' && m.load.length < 2) {
+      m.load.push('E'); a.st = 'waiting'; a.left = Math.min(a.total, a.left + 6);
+    } else if (a.st == 'empty') say(a.x + a.w / 2, GF[a.f] + 4, L('Carrello pieno', 'Cart full'), C.r);
+  }
+  m.update = dt => {
+    m.fx.forEach(f => f.t += dt); m.fx = m.fx.filter(f => f.t < 1);
+    if (m.over) return;
+    m.t += dt;
+    // carrello: sale e scende la scala, poi esegue l'azione
+    const c = m.cart;
+    if (c.target) {
+      const d = c.target.f - c.f, step = 2.4 * dt;
+      if (Math.abs(d) <= step) { c.f = c.target.f; const tg = c.target; c.target = null; arrive(tg); }
+      else c.f += Math.sign(d) * step;
+    }
+    // nuove richieste di gas
+    if ((m.next -= dt) <= 0) {
+      const free = apts.filter(a => a.st == 'ok');
+      if (free.length) { const a = pick(free); a.st = 'empty'; a.total = a.left = Math.max(12, 20 - m.t * .1); }
+      m.next = Math.max(1.6, 4 - m.t * .05) * rnd(.7, 1.3);
+    }
+    apts.forEach(a => {
+      if (a.st == 'ok') return;
+      if ((a.left -= dt) <= 0) {
+        if (a.st == 'waiting') { const i = m.load.indexOf('E'); if (i >= 0) m.load.splice(i, 1); }
+        a.st = 'ok'; m.lives--; say(a.x + a.w / 2, GF[a.f] + 4, L('Senza gas!', 'No gas!'), C.r);
+      }
+    });
+    if (m.lives <= 0) { m.over = true; m.reason = L('Tutti al freddo!', 'Everyone is cold!'); }
+    else if (m.t >= m.dur) {
+      m.over = true; m.success = m.delivered >= 3;
+      m.reason = m.success ? L('Gas consegnato!', 'Gas delivered!') : L('Tempo scaduto!', "Time's up!");
+    }
+  };
+  m.click = (x, y) => {
+    const [vx, vy, vw, vh] = VAN;
+    if (x >= vx && x < vx + vw && y >= vy && y < vy + vh) { m.cart.target = { f: 3, van: true }; return; }
+    const a = apts.find(a => x >= a.x && x < a.x + a.w && y >= GF[a.f] && y < GF[a.f] + FH);
+    if (a) { m.cart.target = { f: a.f, apt: a }; return; }
+    const f = GF.findIndex(gy => y >= gy && y < gy + FH);
+    if (f >= 0 && x >= STAIR[0] && x < STAIR[1]) m.cart.target = { f };
+  };
+  m.draw = () => {
+    drawSection(m);
+    const blink = (m.t * 4 | 0) % 2;
+    apts.forEach(a => {
+      const bx = a.side ? a.x + 12 : a.x + a.w - 12, base = gasFloorY(a.f);
+      if (a.st == 'empty') {
+        drawBombola(bx, base, false);
+        if (blink) text('!', bx - 1, base - 18, C.r);
+      } else if (a.st == 'waiting') {
+        g.rect('#00000040', bx - 3, base - 9, 6, 9);                        // posto vuoto: aspetta la bombola piena
+      }
+      if (a.st != 'ok') {
+        const f = a.left / a.total;
+        g.rect('#000000', a.x + 4, GF[a.f] + 2, a.w - 8, 2); g.rect(f > .4 ? C.g : C.r, a.x + 4, GF[a.f] + 2, (a.w - 8) * f, 2);
+      }
+    });
+    // carrello con l'amministratore stilizzato
+    const cy = GF[0] + m.cart.f * FH + FH - 2, cx = (STAIR[0] + STAIR[1]) / 2;
+    g.rect('#2a2a30', cx - 6, cy - 2, 12, 2); g.rect('#2a2a30', cx + 5, cy - 14, 1, 12);
+    m.load.forEach((b, k) => drawBombola(cx - 3 + k * 6, cy - 2, b == 'F'));
+    ell('#f0c6a0', cx + 8, cy - 18, 2, 2); g.rect('#3a5a94', cx + 7, cy - 15, 3, 7); g.rect('#2a2a30', cx + 7, cy - 8, 3, 6);
+    m.fx.forEach(f => text(f.s, f.x - F.width(f.s) / 2, f.y - f.t * 10, f.c));
+    g.rect('#0d0f24d0', 0, 0, W, 10);
+    text(L('Punti ', 'Score ') + m.score, 3, 3, C.ink);
+    text(L('Consegne ', 'Delivered ') + m.delivered, 60, 3, C.dim);
+    for (let k = 0; k < 3; k++) g.rect(k < m.lives ? C.r : '#3a3a50', 150 + k * 7, 3, 5, 5);
+    const tt = (isFinite(m.dur) ? Math.max(0, Math.ceil(m.dur - m.t)) : m.t | 0) + 's';
+    text(tt, 236 - F.width(tt), 3, C.dim);
+  };
+  return m;
+}
+
+/* =================== MINIGIOCO 6: SPALA LA NEVE =================== */
+const SNOW_CW = 10, SNOW_N = 24, WALK = 113;     // celle di neve larghe 10 px sul marciapiede
+function drawWinter(depth, flakes) {
+  g.rect('#b8c4cc', 0, 0, W, 40);
+  g.rect('#e0b24f', 0, 20, W, 80);
+  for (let x = 6; x < W; x += 24) {                                     // finestre con la neve sui davanzali
+    if (x > 100 && x < 130) continue;
+    [28, 56].forEach(y => { g.rect('#b5332e', x, y, 14, 14); g.rect('#f4f8ff', x - 1, y + 14, 16, 2); });
+  }
+  g.rect('#3a3a40', 0, 14, W, 6); g.rect('#f4f8ff', 0, 12, W, 3);       // tetto innevato
+  g.rect('#d6cdb6', 106, 64, 28, 36); g.rect('#5a3a22', 110, 70, 20, 30); g.rect('#3e2716', 119, 70, 1, 30);  // portone
+  g.rect('#a39886', 0, 100, W, 22);                                     // marciapiede
+  g.rect('#55575c', 0, 122, W, H - 122); g.rect('#f4f8ff', 0, 122, W, 2);
+  if (depth) depth.forEach((d, i) => {
+    if (d < .5) return;
+    const h = Math.round(d);
+    g.rect('#f4f8ff', i * SNOW_CW, 117 - h, SNOW_CW, h + 3);
+    g.rect('#ffffff', i * SNOW_CW + 2, 116 - h, SNOW_CW - 4, 1);
+    g.rect('#c8d4e4', i * SNOW_CW, 119, SNOW_CW, 1);
+  });
+  if (flakes) flakes.forEach(f => g.rect('#ffffff', f.x, f.y, 1, 1));
+}
+
+function makeSnow(opts = {}) {
+  const m = { t: 0, dur: opts.arcade ? 25 : 45, success: false, score: 0, removed: 0, falls: 0, safe: 0,
+    depth: Array.from({ length: SNOW_N }, () => rnd(1, 3)), people: [], flakes: [], next: 3.5, shovel: null, fx: [], over: false, reason: '' };
+  for (let i = 0; i < 70; i++) m.flakes.push({ x: rnd(0, W), y: rnd(0, H), v: rnd(10, 25) });
+  function dig(x, amount) {
+    const i = Math.floor(x / SNOW_CW);
+    [[i, 1], [i - 1, .4], [i + 1, .4]].forEach(([k, w]) => {
+      if (k < 0 || k >= SNOW_N) return;
+      const d = Math.min(m.depth[k], amount * w);
+      m.depth[k] -= d; m.removed += d;
+    });
+  }
+  m.update = dt => {
+    m.fx.forEach(f => f.t += dt); m.fx = m.fx.filter(f => f.t < 1);
+    if (m.shovel && (m.shovel.t += dt) > .2) m.shovel = null;
+    m.flakes.forEach(f => { f.y += f.v * dt; f.x += Math.sin(f.y / 9) * .3; if (f.y > H) { f.y = -2; f.x = rnd(0, W); } });
+    if (m.over) return;
+    m.t += dt;
+    // nevicata graduale: all'inizio ~0.3 cm/s per cella, poi sempre più fitta
+    const rate = .5 + m.t * .02;
+    m.depth = m.depth.map(d => Math.min(12, d + rnd(0, rate * 1.2) * dt));
+    // i condomini escono dal portone e camminano sul marciapiede
+    if ((m.next -= dt) <= 0) {
+      m.people.push({ x: 120, dir: Math.random() < .5 ? -1 : 1, fallen: 0, slipped: false, col: pick(['#b5332e', '#3a5a94', '#3e5c30', '#7a3a5a']) });
+      m.next = rnd(3, 5) / (1 + m.t / 40);
+    }
+    m.people.forEach(p => {
+      if (p.fallen > 0) { p.fallen -= dt; return; }
+      p.x += p.dir * 22 * dt;
+      const i = Math.floor(p.x / SNOW_CW);
+      if (i >= 0 && i < SNOW_N && m.depth[i] > 7 && p.lastFall != i) {
+        p.fallen = 1; p.slipped = true; p.lastFall = i; m.falls++;
+        m.fx.push({ x: p.x, y: WALK - 20, s: L('Ahi!', 'Ouch!'), c: C.r, t: 0 });
+      }
+    });
+    m.people = m.people.filter(p => {
+      const out = p.x < -6 || p.x > W + 6;
+      if (out && !p.slipped) { m.safe++; m.fx.push({ x: Math.min(W - 10, Math.max(10, p.x)), y: WALK - 20, s: '+10', c: C.g, t: 0 }); }
+      return !out;
+    });
+    m.score = Math.round(m.removed / 2) + m.safe * 10;
+    if (!opts.arcade && m.falls >= 5) { m.over = true; m.reason = L('Troppe cadute!', 'Too many falls!'); }
+    else if (m.t >= m.dur) {
+      m.over = true; m.success = m.falls <= 1;
+      m.reason = opts.arcade && m.success ? L('Marciapiede pulito!', 'Sidewalk clear!') : L('Tempo scaduto!', "Time's up!");
+    }
+  };
+  m.click = (x, y) => { if (y > 70) { dig(x, 5); m.shovel = { x, y, t: 0 }; } };
+  let last = null;
+  m.drag = (x, y) => {
+    if (y > 70 && last) { dig(x, Math.min(3, Math.hypot(x - last[0], y - last[1]) * .25)); m.shovel = { x, y, t: 0 }; }
+    last = [x, y];
+    clearTimeout(m.lastT); m.lastT = setTimeout(() => last = null, 120);
+  };
+  m.draw = () => {
+    drawWinter(m.depth, null);
+    m.people.forEach(p => {                                             // omino; se è caduto è sdraiato
+      if (p.fallen > 0) { g.rect(p.col, p.x - 6, WALK - 3, 10, 3); ell('#f0c6a0', p.x + 5, WALK - 2, 2, 2); return; }
+      ell('#f0c6a0', p.x, WALK - 15, 2, 2); g.rect(p.col, p.x - 2, WALK - 12, 5, 7);
+      const st = (m.t * 8 | 0) % 2;
+      g.rect('#2a2a30', p.x - 2 + st, WALK - 5, 2, 5); g.rect('#2a2a30', p.x + 1 - st, WALK - 5, 2, 5);
+    });
+    if (m.shovel) {                                                     // pala
+      const { x, y } = m.shovel;
+      g.rect('#7a5230', x, y - 10, 1, 9); g.rect('#9aa0a8', x - 3, y - 2, 7, 3);
+    }
+    m.flakes.forEach(f => g.rect('#ffffff', f.x, f.y, 1, 1));
+    m.fx.forEach(f => text(f.s, f.x - F.width(f.s) / 2, f.y - f.t * 10, f.c));
+    g.rect('#0d0f24d0', 0, 0, W, 10);
+    text(L('Punti ', 'Score ') + m.score, 3, 3, C.ink);
+    text(L('Cadute ', 'Falls ') + m.falls, 70, 3, m.falls ? C.r : C.dim);
+    const left = Math.max(0, Math.ceil(m.dur - m.t)) + 's';
+    text(left, 236 - F.width(left), 3, m.dur - m.t <= 10 ? C.r : C.dim);
+  };
+  return m;
+}
+
 /* =================== ELENCO MINIGIOCHI =================== */
 const GAMES = [
   { id: 'leak',
@@ -861,7 +1099,23 @@ const GAMES = [
       "All the fireplaces were lit at once and smoke is filling the flats. Fan like crazy: click or drag inside the rooms to push the smoke out of the window, before a home fills up completely!"),
     tip: a => a ? L('Resisti 30 secondi senza far riempire le stanze', 'Hold on 30 seconds without letting a room fill up') : L('Clicca o trascina nelle stanze per sventolare', 'Click or drag in the rooms to fan'),
     drawBg: () => drawRooms(null), create: makeSmoke,
-    icon: (cx, cy) => { ell('#6a6a74', cx, cy + 2, 10, 6); ell('#a8a8b0', cx - 2, cy, 8, 5); ell('#d8d8e0', cx + 2, cy - 2, 5, 3); } }
+    icon: (cx, cy) => { ell('#6a6a74', cx, cy + 2, 10, 6); ell('#a8a8b0', cx - 2, cy, 8, 5); ell('#d8d8e0', cx + 2, cy - 2, 5, 3); } },
+  { id: 'gas',
+    title: () => L('Bombole del gas', 'Gas run'),
+    ring: () => L('Senza gas!', 'Out of gas!'),
+    intro: () => L("Niente gas, niente polenta! Gli appartamenti lasciano fuori dalla porta le bombole vuote. Clicca su un appartamento per mandarci il carrello, porta le vuote al furgone del gas giu in strada e riporta su quelle piene prima che scada il tempo.",
+      "No gas, no polenta! The flats leave their empty gas bottles outside the door. Click a flat to send the cart there, take the empties to the gas van down in the street and bring the full ones back up before time runs out."),
+    tip: a => a ? L('35 secondi: consegna almeno 3 bombole', '35 seconds: deliver at least 3 bottles') : L('Carrello: massimo 2 bombole. 3 vite', 'Cart: 2 bottles max. 3 lives'),
+    drawBg: drawSection, create: makeGas,
+    icon: (cx, cy) => { drawBombola(cx - 4, cy + 9, true); drawBombola(cx + 4, cy + 9, false); } },
+  { id: 'snow',
+    title: () => L('Spala la neve', 'Snow day'),
+    ring: () => L('Nevica!', "It's snowing!"),
+    intro: () => L("Stanotte in Val di Rabbi sono caduti trenta centimetri di neve e continua a nevicare! Spala il marciapiede davanti al portone: clicca o trascina sulla neve. Se un condomino passa sulla neve alta scivola, e sono guai!",
+      "Last night a foot of snow fell in Val di Rabbi and it is still snowing! Shovel the sidewalk in front of the door: click or drag on the snow. If a resident walks on deep snow they slip, and that means trouble!"),
+    tip: a => a ? L('25 secondi: al massimo una caduta', '25 seconds: one fall at most') : L('45 secondi, max 5 cadute: clicca o trascina', '45 seconds, 5 falls max: click or drag'),
+    drawBg: () => drawWinter(null, null), create: makeSnow,
+    icon: (cx, cy) => { g.rect('#7a5230', cx + 2, cy - 10, 1, 14); g.rect('#9aa0a8', cx - 2, cy + 3, 9, 4); ell('#f4f8ff', cx - 5, cy + 8, 5, 3); } }
 ];
 
 /* --- avvio --- */
