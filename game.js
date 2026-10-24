@@ -97,7 +97,7 @@ function fitName() { if (nameBox) nameInput.style.fontSize = Math.max(10, wrap.c
 addEventListener('resize', fitName);
 
 const bg = new Image();
-bg.src = 'reference/edificio.png?v=202610241623';
+bg.src = 'reference/edificio.png?v=202610241811';
 
 /* --- testi inglesi degli amministratori (gli italiani sono in admins-art.js) --- */
 const ADMIN_EN = [
@@ -178,14 +178,15 @@ const Menu = {
     g.rect(C.y, 0, 12, W, 1);
     text(L('Amministratore: ', 'Administrator: ') + adminText(adminIndex()).name, 6, 16, C.dim);
     // schede 2 per riga
+    // elenco compatto a due colonne (fino a 14 minigiochi): tutta la riga è cliccabile
     GAMES.forEach((gm, k) => {
-      const x = 8 + (k % 2) * 116, y = 25 + (k >> 1) * 31, w = 108, h = 28;
-      panel(x, y, w, h);
-      gm.icon(x + 13, y + 14);
-      text(gm.title(), x + 28, y + 3, C.y);
+      const x = 6 + (k % 2) * 116, y = 24 + (k >> 1) * 13, w = 112, h = 12;
+      g.rect(C.panD, x, y, w, h); g.rect(C.pan, x, y + h - 1, w, 1);
+      miniIcon(gm.id, x + 7, y + 6);
+      text(gm.title(), x + 15, y + 1, C.y);
       const best = records(gm.id)[0];
-      text(best ? L('Rec. ', 'Best ') + best.name.slice(0, 7) + ' ' + best.score : L('Nessun record', 'No record yet'), x + 28, y + 10, C.dim);
-      button(x + 28, y + 17, 44, 9, L('Gioca', 'Play'), () => go(Intro, gm));
+      text(best ? best.name.slice(0, 6) + ' ' + best.score : '-', x + 15, y + 7, C.dim);
+      btns.push({ x, y, w, h, fn: () => go(Intro, gm) });
     });
     const more = 13 - GAMES.length, ms = L('+' + more + ' in arrivo', '+' + more + ' coming');
     text(ms, 234 - F.width(ms), 16, C.dim);
@@ -251,6 +252,7 @@ function miniIcon(id, x, y) {
   else if (id == 'mush') drawMush('p', x, y + 3, .4);
   else if (id == 'mouse') drawMouse(x - 1, y + 3, .5);
   else if (id == 'gas') drawBombola(x, y + 4, true);
+  else if (id == 'ice') { g.rect('#bfe4ff', x - 4, y + 1, 9, 2); g.rect('#ffffff', x - 2, y + 1, 2, 1); g.rect('#d04040', x - 1, y - 4, 4, 4); }
   else if (id == 'snow') { g.rect('#ffffff', x - 3, y, 7, 1); g.rect('#ffffff', x, y - 3, 1, 7); g.rect('#c8d4e4', x - 2, y - 2, 1, 1); g.rect('#c8d4e4', x + 2, y + 2, 1, 1); }
   else { ell('#6a6a74', x, y, 4, 2); ell('#c8c8d0', x - 1, y - 1, 3, 2); ell('#e8e8ee', x + 1, y - 1, 2, 1); }
 }
@@ -1067,6 +1069,113 @@ function makeSnow(opts = {}) {
   return m;
 }
 
+/* =================== MINIGIOCO 7: GHIACCIO! =================== */
+// marciapiede in pendenza (come quello vero): in alto a sinistra, in basso a destra
+const ICE_N = 14, ICE_W = 16, ICE_X0 = 16;                 // lastre possibili lungo il marciapiede
+const walkY = x => 98 + Math.round(x * 20 / W);           // quota del marciapiede alla x data
+const BUCKET = [2, 84, 12, 12];                            // secchio del sale in cima alla salita
+function drawSlope(cells) {
+  g.rect('#1e2a48', 0, 0, W, H);                           // sera d'inverno
+  for (let i = 0; i < 30; i++) g.rect('#c8d4ff', (i * 67) % W, (i * 23) % 40, 1, 1);
+  g.rect('#c99a3c', 0, 30, W, 90);
+  for (let x = 10; x < W; x += 26) [40, 64].forEach(y => { g.rect('#ffd860', x, y, 12, 12); g.rect('#b5332e', x - 3, y, 3, 12); g.rect('#b5332e', x + 12, y, 3, 12); });
+  g.rect('#3a3a40', 0, 24, W, 6); g.rect('#f4f8ff', 0, 22, W, 3);
+  // lampione
+  g.rect('#3a3a40', 120, 40, 2, 60); g.rect('#ffd860', 116, 38, 10, 3); g.rect('#ffd86030', 100, 41, 42, 56);
+  for (let x = 0; x < W; x++) {                            // marciapiede in porfido e strada
+    const y = walkY(x);
+    g.rect('#8a8070', x, y, 1, 8); if ((x * 7) % 19 < 2) g.rect('#6e6458', x, y + 3, 1, 1);
+    g.rect('#3a3c42', x, y + 8, 1, H - y - 8);
+  }
+  if (cells) cells.forEach((c, i) => {
+    if (c.st == 'none') return;
+    const x0 = ICE_X0 + i * ICE_W;
+    for (let x = x0; x < x0 + ICE_W - 2; x++) {
+      const y = walkY(x);
+      if (c.st == 'ice') { g.rect(c.grow < 1 ? '#bfe4ff80' : '#bfe4ff', x, y, 1, 3); if ((x + i) % 5 == 0) g.rect('#ffffff', x, y, 1, 1); }
+      else { g.rect('#9a8a70', x, y, 1, 2); if ((x * 3 + i) % 4 == 0) g.rect('#f4f4f4', x, y, 1, 1); }   // sale
+    }
+  });
+  // secchio del sale
+  const [bx, by, bw, bh] = BUCKET;
+  g.rect('#1a1420', bx - 1, by - 1, bw + 2, bh + 2); g.rect('#d04040', bx, by, bw, bh); g.rect('#f4f4f4', bx + 2, by + 2, bw - 4, 3);
+}
+
+function makeIce(opts = {}) {
+  const m = { t: 0, dur: opts.arcade ? 25 : 45, success: false, score: 0, salt: 8, falls: 0, safe: 0, lives: 3,
+    cells: Array.from({ length: ICE_N }, () => ({ st: 'none', grow: 0, left: 0 })), people: [], fx: [], next: 1, nextP: 2.5, over: false, reason: '' };
+  const say = (x, y, s, c) => m.fx.push({ x, y, s, c, t: 0 });
+  m.update = dt => {
+    m.fx.forEach(f => f.t += dt); m.fx = m.fx.filter(f => f.t < 1);
+    if (m.over) return;
+    m.t += dt;
+    // si formano lastre di ghiaccio; il sale dura qualche secondo
+    if ((m.next -= dt) <= 0) {
+      const free = m.cells.filter(c => c.st == 'none');
+      if (free.length) { const c = pick(free); c.st = 'ice'; c.grow = 0; }
+      m.next = Math.max(.7, 2 - m.t * .03) * rnd(.7, 1.3);
+    }
+    m.cells.forEach(c => {
+      if (c.st == 'ice') c.grow = Math.min(1, c.grow + dt / 1.2);
+      if (c.st == 'salt' && (c.left -= dt) <= 0) c.st = 'none';
+    });
+    // condomini che salgono o scendono il marciapiede
+    if ((m.nextP -= dt) <= 0) {
+      const dir = Math.random() < .5 ? 1 : -1;
+      m.people.push({ x: dir > 0 ? -4 : W + 4, dir, fallen: 0, slipped: false, last: -1, col: pick(['#b5332e', '#3a5a94', '#3e5c30', '#7a3a5a', '#d0a040']) });
+      m.nextP = rnd(2.5, 4) / (1 + m.t / 50);
+    }
+    m.people.forEach(p => {
+      if (p.fallen > 0) { p.fallen -= dt; return; }
+      p.x += p.dir * 20 * dt;
+      const i = Math.floor((p.x - ICE_X0) / ICE_W);
+      const c = m.cells[i];
+      if (c && c.st == 'ice' && c.grow >= 1 && p.last != i) {
+        p.fallen = 1.1; p.slipped = true; p.last = i; m.falls++; m.lives--;
+        say(p.x, walkY(p.x) - 20, L('Patatrac!', 'Crash!'), C.r);
+      }
+    });
+    m.people = m.people.filter(p => {
+      const out = p.x < -8 || p.x > W + 8;
+      if (out && !p.slipped) { m.safe++; m.score += 10; }
+      return !out;
+    });
+    if (!opts.arcade && m.lives <= 0) { m.over = true; m.reason = L('Tutti per terra!', 'Everyone fell!'); }
+    else if (m.t >= m.dur) {
+      m.over = true; m.success = m.falls <= 1;
+      m.reason = opts.arcade && m.success ? L('Niente ghiaccio!', 'No more ice!') : L('Tempo scaduto!', "Time's up!");
+    }
+  };
+  m.click = (x, y) => {
+    const [bx, by, bw, bh] = BUCKET;
+    if (x >= bx - 2 && x < bx + bw + 2 && y >= by - 2 && y < by + bh + 2) { m.salt = 8; say(bx + 8, by - 6, L('Sale!', 'Salt!'), C.g); return; }
+    const i = Math.floor((x - ICE_X0) / ICE_W), c = m.cells[i];
+    if (!c || Math.abs(y - walkY(x)) > 10) return;
+    if (c.st != 'ice') return;
+    if (m.salt <= 0) { say(x, y - 10, L('Sale finito!', 'Out of salt!'), C.r); return; }
+    m.salt--; c.st = 'salt'; c.left = 6; m.score += 5;
+    say(x, y - 10, '+5', C.g);
+  };
+  m.draw = () => {
+    drawSlope(m.cells);
+    m.people.forEach(p => {
+      const y = walkY(p.x);
+      if (p.fallen > 0) { g.rect(p.col, p.x - 6, y - 3, 10, 3); ell('#f0c6a0', p.x + 5, y - 2, 2, 2); return; }
+      ell('#f0c6a0', p.x, y - 15, 2, 2); g.rect(p.col, p.x - 2, y - 12, 5, 7);
+      const st = (m.t * 8 | 0) % 2;
+      g.rect('#2a2a30', p.x - 2 + st, y - 5, 2, 5); g.rect('#2a2a30', p.x + 1 - st, y - 5, 2, 5);
+    });
+    m.fx.forEach(f => text(f.s, f.x - F.width(f.s) / 2, f.y - f.t * 10, f.c));
+    g.rect('#0d0f24d0', 0, 0, W, 10);
+    text(L('Punti ', 'Score ') + m.score, 3, 3, C.ink);
+    text(L('Sale ', 'Salt ') + m.salt, 64, 3, m.salt ? C.ink : C.r);
+    for (let k = 0; k < 3; k++) g.rect(!opts.arcade && k >= m.lives ? '#3a3a50' : C.r, 120 + k * 7, 3, 5, 5);
+    const left = Math.max(0, Math.ceil(m.dur - m.t)) + 's';
+    text(left, 236 - F.width(left), 3, m.dur - m.t <= 10 ? C.r : C.dim);
+  };
+  return m;
+}
+
 /* =================== ELENCO MINIGIOCHI =================== */
 const GAMES = [
   { id: 'leak',
@@ -1115,12 +1224,24 @@ const GAMES = [
       "Last night a foot of snow fell in Val di Rabbi and it is still snowing! Shovel the sidewalk in front of the door: click or drag on the snow. If a resident walks on deep snow they slip, and that means trouble!"),
     tip: a => a ? L('25 secondi: al massimo una caduta', '25 seconds: one fall at most') : L('45 secondi, max 5 cadute: clicca o trascina', '45 seconds, 5 falls max: click or drag'),
     drawBg: () => drawWinter(null, null), create: makeSnow,
-    icon: (cx, cy) => { g.rect('#7a5230', cx + 2, cy - 10, 1, 14); g.rect('#9aa0a8', cx - 2, cy + 3, 9, 4); ell('#f4f8ff', cx - 5, cy + 8, 5, 3); } }
+    icon: (cx, cy) => { g.rect('#7a5230', cx + 2, cy - 10, 1, 14); g.rect('#9aa0a8', cx - 2, cy + 3, 9, 4); ell('#f4f8ff', cx - 5, cy + 8, 5, 3); } },
+  { id: 'ice',
+    title: () => L('Ghiaccio!', 'Black ice!'),
+    ring: () => L('Che scivolone!', 'Watch your step!'),
+    intro: () => L("Stasera gela e il marciapiede in salita davanti al condominio diventa una pista di pattinaggio. Clicca sulle lastre di ghiaccio per spargere il sale prima che i condomini ci passino sopra. Il sale finisce: ricaricalo dal secchio rosso in cima alla salita!",
+      "It is freezing tonight and the sloping sidewalk in front of the building turns into an ice rink. Click the ice patches to spread salt before the residents walk on them. Salt runs out: refill it from the red bucket at the top of the slope!"),
+    tip: a => a ? L('25 secondi: al massimo una caduta', '25 seconds: one fall at most') : L('45 secondi, 3 vite, 8 manciate di sale', '45 seconds, 3 lives, 8 handfuls of salt'),
+    drawBg: () => drawSlope(null), create: makeIce,
+    icon: (cx, cy) => { g.rect('#bfe4ff', cx - 8, cy + 4, 16, 3); g.rect('#ffffff', cx - 5, cy + 4, 2, 1); g.rect('#d04040', cx - 3, cy - 6, 7, 8); g.rect('#f4f4f4', cx - 2, cy - 5, 5, 2); } }
 ];
 
 /* --- avvio --- */
 setLang(lang);
 go(Title);
+{
+  const pm = location.search.match(/[?&]play=([a-z]+)/), gm = pm && GAMES.find(x => x.id == pm[1]);
+  if (gm) go(Play, gm, /[?&]arcade/.test(location.search) ? { p: { n: 1 } } : undefined);
+}
 let last = performance.now();
 // un errore non deve bloccare il gioco: lo mostriamo in fondo allo schermo e si continua
 let lastError = '';
