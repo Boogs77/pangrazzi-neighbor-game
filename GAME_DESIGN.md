@@ -252,37 +252,44 @@ Codice: `admins-art.js` (sprite + schede), `pixel-font.js` (carattere 3×5 compl
 
 ---
 
-## 6. Minigiochi (proposta)
+## 6. Minigiochi
 
-✅ = già nel prototipo · 💡 = nuovo
+### Regole comuni a tutti i minigiochi ✅
+- **Prima di partire**: una schermata con una **spiegazione simpatica** (chi chiama, cosa succede, come si gioca) e un tasto VIA.
+- **Alla fine**: punteggio, possibilità di **inserire il nome e salvare il record** → classifica per ogni minigioco.
 
-Categorie: 🔧 riparazione · 📋 burocrazia · 🧑‍🤝‍🧑 condomini · 🎲 riflessi
+### Decisi dall'utente ✅
 
-| # | Nome IT / EN | Cat. | Meccanica | Stato |
-|---|--------------|------|-----------|-------|
-| 1 | Perdita d'acqua / *Leak* | 🔧 | Clicca tutte le gocce | ✅ |
-| 2 | Bollette / *Bills* | 📋 | Somma le spese, scelta multipla | ✅ |
-| 3 | Ascensore / *Elevator* | 🎲 | Ferma il cursore nella zona verde | ✅ |
-| 4 | Chiavi / *Keys* | 🎲 | Trova la chiave col numero giusto | ✅ |
-| 5 | Citofono / *Intercom* | 🎲 | Ripeti la sequenza di colori | ✅ |
-| 6 | Lampadina delle scale / *Stair Light* | 🔧 | Avvita la lampadina (clic ripetuti) prima che scada il timer luce | 💡 |
-| 7 | Raccolta differenziata / *Recycling* | 🧑‍🤝‍🧑 | Trascina i rifiuti nel bidone giusto | 💡 |
-| 8 | Rumore molesto / *Noise* | 🧑‍🤝‍🧑 | Individua l'appartamento da cui viene la musica | 💡 |
-| 9 | Pacchi / *Parcels* | 📋 | Abbina pacco e numero di interno | 💡 |
-| 10 | Assemblea / *Meeting* | 🧑‍🤝‍🧑 | Scegli la risposta che accontenta la maggioranza | 💡 |
-| 11 | Parcheggio / *Parking* | 🎲 | Incastra le auto nel cortile (mini-puzzle) | 💡 |
-| 12 | Preventivi / *Quotes* | 📋 | Scegli il preventivo più conveniente | 💡 |
-| 13 | Caldaia / *Boiler* | 🔧 | Porta la lancetta della pressione nella zona giusta | 💡 |
-| 14 | Piccione / *Pigeon* | 🎲 | Scaccia i piccioni dal balcone (whack-a-mole) | 💡 |
-| 15 | Panni stesi / *Laundry* | 🧑‍🤝‍🧑 | Ritira i panni prima che arrivi la pioggia | 💡 |
-| 16 | Infiltrazione / *Damp* | 🔧 | Trova la macchia di umidità nascosta | 💡 |
-| 17 | Lite tra vicini / *Feud* | 🧑‍🤝‍🧑 | Separa i due condomini prima che litighino (tempismo) | 💡 |
-| 18 | Morosi / *Late Payers* | 📋 | Trova chi non ha pagato nella lista | 💡 |
-| 19 | Grande evento | ⭐ | Minigioco speciale nelle parti comuni (cantine, androne) dove intervengono tutti | ❓ |
+| # | Nome IT / EN | Ambientazione | Meccanica |
+|---|---|---|---|
+| 1 | Perdita d'acqua / *Leak* | Interno di un appartamento | Da 3 a 6 punti perdono acqua: clicca per chiuderli. Finché perdono, **il livello dell'acqua sale** e rischia di sommergere il giocatore. |
+| 2 | Raccolta funghi / *Mushroom Hunt* | Bosco della Val di Rabbi | I funghi spuntano e spariscono: raccoglili più in fretta possibile. **Marroni = porcini**, **gialli = finferli**. Ogni tanto spunta un **fungo rosso velenoso**: se lo prendi **perdi i funghi raccolti** prima. |
+| 3 | Caccia ai topi / *Mouse Panic* | Interno di un appartamento | Stile "acchiappa la talpa": i topi spuntano da buchi e mobili, colpiscili il più velocemente possibile per fare crediti. |
+| 4 | Via il fumo! / *Smoke Out* | Appartamenti con caminetti | Il fumo dei camini entra nelle case: **sventola** (clic/trascinamento ripetuto) per spingerlo fuori dalle finestre prima che riempia le stanze. |
+| 5 | Bombole del gas / *Gas Run* | **Spaccato del condominio** (piani e scale in sezione) | Porta giù le bombole vuote, portale a ricaricare, riporta su quelle piene all'appartamento giusto. Da progettare nei dettagli. |
 
-❓ Quali tenere? Obiettivo indicativo: 10–12 minigiochi in totale.
+### Proposte di Claude 💡 (da scegliere)
+
+| # | Nome IT / EN | Ambientazione | Meccanica |
+|---|---|---|---|
+| 6 | Spala la neve / *Snow Day* | Marciapiede e ingresso dopo una nevicata | Spala la neve dal portone e dal marciapiede prima che arrivino i condomini; la neve continua a cadere. |
+| 7 | Ghiaccio! / *Black Ice* | Marciapiede in pendenza | Spargi il sale sulle lastre ghiacciate prima che qualcuno scivoli (condomini che scendono la strada). |
+| 8 | La legnaia / *Woodpile* | Cantina | Impila la legna incastrando i ciocchi (mini-Tetris) prima che crolli la catasta. |
+| 9 | Nido di calabroni / *Hornets* | Gronda del tetto | Tieni lontani i calabroni dalle finestre aperte, poi stacca il nido con la scopa. |
+| 10 | L'orso nei bidoni / *Bear Bins* | Cortile di notte | Un orso del Parco dello Stelvio fruga nei bidoni: chiudi i coperchi in tempo e non farti vedere. |
+| 11 | Raccolta differenziata / *Recycling* | Cortile | Trascina i rifiuti nel bidone giusto; più veloce = più punti, errore = multa. |
+| 12 | Grondaie intasate / *Gutters* | Tetto e mansarda | Togli le foglie dalle grondaie prima del temporale, o l'acqua entra in mansarda. |
+| 13 | Panni al sole / *Laundry Rush* | Terrazzi | Arriva la pioggia: ritira i panni stesi prima che si bagnino. |
+| 14 | Assemblea di condominio / *The Meeting* | Androne (parte comune 17) | Rispondi alle lamentele scegliendo la risposta che accontenta la maggioranza. |
+| 15 | Turisti delle Terme / *Lost Tourists* | Strada e negozio Souvenirs | Indica la strada giusta ai turisti che cercano le terme o il negozio. |
+
+### Dal prototipo (già funzionanti, da rivedere)
+Bollette, Ascensore, Chiavi, Citofono — più eventuali Lampadina delle scale, Caldaia, Pacchi.
+
+❓ Quali proposte tenere? Ordine di comparsa? Quali minigiochi sono legati alle **parti comuni** (cantine 18–19, androne 17), dove intervengono tutti?
 
 ---
+
 
 ## 7. Prossimi passi
 
@@ -292,7 +299,7 @@ Categorie: 🔧 riparazione · 📋 burocrazia · 🧑‍🤝‍🧑 condomini �
 1d. [x] Divisione in appartamenti completata (21, di cui 4 speciali).
 1e. [ ] Portare la facciata v3 nel gioco (finestre cliccabili per appartamento).
 2. [x] Amministratori: 5 aspetti decisi, schermate fatte (testi da definire).
-2b. [ ] Scegliere i minigiochi (sezione 6).
+2b. [ ] Minigiochi: 5 decisi, scegliere tra le proposte (sezione 6); progettare la spiegazione iniziale e la classifica con nome.
 3. [ ] Rispondere alle decisioni aperte (sezione 3).
 4. [x] Concept in una frase (IT/EN) — sezione 1.
 5. [ ] Pulizia tecnica: titolo, codice inutilizzato, bug di fine turno.
