@@ -97,7 +97,7 @@ function fitName() { if (nameBox) nameInput.style.fontSize = Math.max(10, wrap.c
 addEventListener('resize', fitName);
 
 const bg = new Image();
-bg.src = 'reference/edificio.png?v=202610241814';
+bg.src = 'reference/edificio.png?v=202610241815';
 
 /* --- testi inglesi degli amministratori (gli italiani sono in admins-art.js) --- */
 const ADMIN_EN = [
@@ -230,7 +230,8 @@ const TURNS = [
   { games: ['leak', 'mush'], dur: 75, every: [6, 10], max: 2, deadline: 25 },
   { games: ['leak', 'mush', 'mouse', 'smoke'], dur: 90, every: [5, 8], max: 3, deadline: 22 },
   { games: ['leak', 'mush', 'mouse', 'smoke', 'gas', 'snow'], dur: 100, every: [4, 7], max: 3, deadline: 20 },
-  { games: ['leak', 'mush', 'mouse', 'smoke', 'gas', 'snow', 'ice', 'wood'], dur: 110, every: [4, 6], max: 3, deadline: 20 }
+  { games: ['leak', 'mush', 'mouse', 'smoke', 'gas', 'snow', 'ice', 'wood'], dur: 110, every: [4, 6], max: 3, deadline: 20 },
+  { games: ['leak', 'mush', 'mouse', 'smoke', 'gas', 'snow', 'ice', 'wood', 'bear', 'recycle'], dur: 120, every: [3.5, 6], max: 4, deadline: 20 }
 ];
 const FY = 14;                                       // la facciata parte sotto la barra in alto
 const fs_ = () => W / FACADE.w;                      // scala facciata -> schermo
@@ -256,6 +257,7 @@ function miniIcon(id, x, y) {
   else if (id == 'ice') { g.rect('#bfe4ff', x - 4, y + 1, 9, 2); g.rect('#ffffff', x - 2, y + 1, 2, 1); g.rect('#d04040', x - 1, y - 4, 4, 4); }
   else if (id == 'wood') { g.rect('#3e2716', x - 4, y - 1, 9, 4); g.rect('#8a5a2e', x - 3, y, 7, 2); g.rect('#d8b080', x - 4, y, 2, 2); }
   else if (id == 'bear') { ell('#5a3a22', x - 1, y + 1, 4, 3); ell('#5a3a22', x + 3, y - 1, 2, 2); }
+  else if (id == 'recycle') RBINS.forEach((b, i) => g.rect(b.c, x - 4 + i * 2, y - 2, 2, 5));
   else if (id == 'snow') { g.rect('#ffffff', x - 3, y, 7, 1); g.rect('#ffffff', x, y - 3, 1, 7); g.rect('#c8d4e4', x - 2, y - 2, 1, 1); g.rect('#c8d4e4', x + 2, y + 2, 1, 1); }
   else { ell('#6a6a74', x, y, 4, 2); ell('#c8c8d0', x - 1, y - 1, 3, 2); ell('#e8e8ee', x + 1, y - 1, 2, 1); }
 }
@@ -1393,6 +1395,92 @@ function makeBear(opts = {}) {
   return m;
 }
 
+/* =================== MINIGIOCO 11: RACCOLTA DIFFERENZIATA =================== */
+const RBINS = [
+  { k: 'carta', c: '#2f6fd0', it: 'Carta', en: 'Paper' },
+  { k: 'plast', c: '#f5c518', it: 'Plastica', en: 'Plastic' },
+  { k: 'vetro', c: '#3e8a4a', it: 'Vetro', en: 'Glass' },
+  { k: 'umido', c: '#7a5230', it: 'Umido', en: 'Organic' }
+];
+const RBX = [24, 80, 136, 192], RBY = 92, RBW = 34, BELT_Y = 52;
+// rifiuti: tipo e disegno 10x10 con (x,y) = centro
+const TRASH = [
+  { k: 'carta', d: (x, y) => { g.rect('#e8e4d8', x - 5, y - 4, 10, 8); for (let i = 0; i < 3; i++) g.rect('#8a8a8a', x - 4, y - 2 + i * 2, 8, 1); } },        // giornale
+  { k: 'carta', d: (x, y) => { g.rect('#a8784a', x - 5, y - 4, 10, 8); g.rect('#8a5e36', x - 5, y - 1, 10, 1); } },                                           // scatola
+  { k: 'plast', d: (x, y) => { g.rect('#9fd4ff', x - 2, y - 5, 4, 10); g.rect('#3a6ad0', x - 1, y - 6, 2, 2); g.rect('#ffffff', x - 1, y - 3, 1, 5); } },      // bottiglia
+  { k: 'plast', d: (x, y) => { g.rect('#c8ccd0', x - 3, y - 4, 6, 8); g.rect('#d04040', x - 3, y - 2, 6, 3); } },                                             // lattina
+  { k: 'vetro', d: (x, y) => { g.rect('#3e8a4a', x - 2, y - 2, 4, 7); g.rect('#3e8a4a', x - 1, y - 6, 2, 4); g.rect('#8ad08a', x - 1, y - 1, 1, 4); } },        // bottiglia di vetro
+  { k: 'vetro', d: (x, y) => { g.rect('#cfe6f5', x - 3, y - 3, 6, 7); g.rect('#d0a040', x - 3, y - 5, 6, 2); } },                                            // barattolo
+  { k: 'umido', d: (x, y) => { g.rect('#f5c518', x - 5, y - 1, 10, 3); g.rect('#f5c518', x - 6, y - 3, 3, 2); g.rect('#5a3a22', x + 4, y - 1, 2, 2); } },       // buccia di banana
+  { k: 'umido', d: (x, y) => { ell('#d04040', x, y, 4, 4); g.rect('#f0e0c0', x - 2, y - 2, 4, 4); g.rect('#5a3a22', x, y - 6, 1, 3); } }                         // torsolo
+];
+function drawRecycle() {
+  g.rect('#9ec6e6', 0, 0, W, 40);
+  g.rect('#c99a3c', 0, 18, W, 30);
+  for (let x = 12; x < W; x += 30) g.rect('#b5332e', x, 24, 14, 12);
+  g.rect('#7a7a80', 0, 40, W, H - 40);
+  g.rect('#3a3a40', 0, BELT_Y + 6, W, 6);                                         // nastro trasportatore
+  for (let x = 0; x < W; x += 8) g.rect('#5a5a62', x + ((performance.now() / 60) | 0) % 8, BELT_Y + 7, 3, 1);
+  RBINS.forEach((b, i) => {
+    const x = RBX[i];
+    g.rect('#1a1420', x - 1, RBY - 1, RBW + 2, 32); g.rect(b.c, x, RBY, RBW, 30);
+    g.rect('#00000040', x, RBY, RBW, 4);
+    text(L(b.it, b.en), x + ((RBW - F.width(L(b.it, b.en))) >> 1), RBY + 12, b.k == 'plast' ? '#000000' : '#ffffff');
+  });
+}
+
+function makeRecycle(opts = {}) {
+  const m = { t: 0, dur: opts.arcade ? 30 : 45, success: false, score: 0, ok: 0, bad: 0, items: [], sel: null, next: .5, fx: [], over: false, reason: '' };
+  const say = (x, y, s, c) => m.fx.push({ x, y, s, c, t: 0 });
+  m.update = dt => {
+    m.fx.forEach(f => f.t += dt); m.fx = m.fx.filter(f => f.t < 1);
+    if (m.over) return;
+    m.t += dt;
+    if ((m.next -= dt) <= 0) {
+      m.items.push({ x: -8, tr: pick(TRASH), id: Math.random() });
+      m.next = Math.max(.7, 1.8 - m.t * .02) * rnd(.8, 1.2);
+    }
+    const v = 18 + m.t * .4;
+    m.items.forEach(it => it.x += v * dt);
+    m.items = m.items.filter(it => {
+      if (it.x < W + 6) return true;
+      m.bad++; m.score = Math.max(0, m.score - 5); if (m.sel == it) m.sel = null;
+      say(W - 20, BELT_Y - 8, L('Perso! -5', 'Lost! -5'), C.r);
+      return false;
+    });
+    if (m.t >= m.dur) {
+      m.over = true; m.success = m.ok >= 5 && m.bad <= 2;
+      m.reason = opts.arcade && m.success ? L('Tutto riciclato!', 'All recycled!') : L('Tempo scaduto!', "Time's up!");
+    }
+  };
+  m.click = (x, y) => {
+    // prima si sceglie il rifiuto sul nastro, poi il bidone
+    const it = m.items.find(it => Math.abs(x - it.x) < 8 && Math.abs(y - BELT_Y) < 9);
+    if (it) { m.sel = it; return; }
+    const i = RBX.findIndex(bx => x >= bx && x < bx + RBW && y >= RBY - 4 && y < RBY + 30);
+    if (i < 0 || !m.sel) return;
+    const right = m.sel.tr.k == RBINS[i].k;
+    m.items = m.items.filter(o => o != m.sel); m.sel = null;
+    if (right) { m.ok++; m.score += 10; say(RBX[i] + RBW / 2, RBY - 8, '+10', C.g); }
+    else { m.bad++; m.score = Math.max(0, m.score - 5); say(RBX[i] + RBW / 2, RBY - 8, L('Multa! -5', 'Fine! -5'), C.r); }
+  };
+  m.draw = () => {
+    drawRecycle();
+    m.items.forEach(it => {
+      if (it == m.sel) { g.rect(C.y, it.x - 7, BELT_Y - 7, 14, 14); g.rect('#7a7a80', it.x - 6, BELT_Y - 6, 12, 12); }
+      it.tr.d(it.x, BELT_Y);
+    });
+    if (m.sel) text(L('Ora clicca il bidone giusto', 'Now click the right bin'), 60, 76, C.y);
+    m.fx.forEach(f => text(f.s, f.x - F.width(f.s) / 2, f.y - f.t * 10, f.c));
+    g.rect('#0d0f24d0', 0, 0, W, 10);
+    text(L('Punti ', 'Score ') + m.score, 3, 3, C.ink);
+    text(L('Giusti ', 'Right ') + m.ok, 64, 3, C.g); text(L('Errori ', 'Errors ') + m.bad, 120, 3, m.bad ? C.r : C.dim);
+    const left = Math.max(0, Math.ceil(m.dur - m.t)) + 's';
+    text(left, 236 - F.width(left), 3, m.dur - m.t <= 10 ? C.r : C.dim);
+  };
+  return m;
+}
+
 /* =================== ELENCO MINIGIOCHI =================== */
 const GAMES = [
   { id: 'leak',
@@ -1465,7 +1553,15 @@ const GAMES = [
       "At night a bear from the Stelvio National Park comes down to the yard to rummage in the bins. The residents always leave the lids open! Click the bins to close them before the bear arrives. If you really must, click the bear to scare it with the torch (3 charges)."),
     tip: a => a ? L("30 secondi: l'orso puo' mangiare al massimo una volta", '30 seconds: the bear may eat once at most') : L('45 secondi, 3 vite: chiudi i coperchi aperti', '45 seconds, 3 lives: close the open lids'),
     drawBg: () => drawYard(null), create: makeBear,
-    icon: (cx, cy) => { ell('#5a3a22', cx - 2, cy + 3, 8, 5); ell('#5a3a22', cx + 6, cy, 4, 3); ell('#5a3a22', cx + 4, cy - 3, 1, 1); ell('#a07850', cx + 9, cy + 1, 1, 1); } }
+    icon: (cx, cy) => { ell('#5a3a22', cx - 2, cy + 3, 8, 5); ell('#5a3a22', cx + 6, cy, 4, 3); ell('#5a3a22', cx + 4, cy - 3, 1, 1); ell('#a07850', cx + 9, cy + 1, 1, 1); } },
+  { id: 'recycle',
+    title: () => L('Differenziata', 'Recycling'),
+    ring: () => L('Che confusione!', 'What a mess!'),
+    intro: () => L("Oggi passa il camion dei rifiuti e i condomini hanno buttato tutto alla rinfusa. Clicca un rifiuto sul nastro e poi il bidone giusto: carta, plastica e lattine, vetro, umido. Ogni errore e ogni rifiuto che cade dal nastro costano una multa!",
+      "The bin lorry comes today and the residents have thrown everything together. Click a piece of rubbish on the belt, then the right bin: paper, plastic and cans, glass, organic. Every mistake and every item that falls off the belt costs a fine!"),
+    tip: a => a ? L('30 secondi: almeno 5 giusti e massimo 2 errori', '30 seconds: at least 5 right, 2 errors max') : L('45 secondi: +10 giusto, -5 errore', '45 seconds: +10 right, -5 error'),
+    drawBg: drawRecycle, create: makeRecycle,
+    icon: (cx, cy) => { RBINS.forEach((b, i) => g.rect(b.c, cx - 10 + i * 5, cy - 2, 4, 8)); } }
 ];
 
 /* --- avvio --- */
